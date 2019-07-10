@@ -1,4 +1,4 @@
-package org.drugis.addis.trialverse;
+package org.drugis.addis.importer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
