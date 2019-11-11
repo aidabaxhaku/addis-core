@@ -38,7 +38,7 @@ define(['angular-mocks', './dataset'], function() {
         DatasetResource: mockDatasetResource,
         ExcelImportService: excelImportServiceMock,
         datasetTitles: datasetTitles,
-        callback: mockCallback,
+        callback: mockCallback
       });
 
     }));

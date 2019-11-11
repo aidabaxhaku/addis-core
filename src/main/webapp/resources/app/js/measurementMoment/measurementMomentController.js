@@ -4,12 +4,21 @@ define(['lodash', 'angular'], function(_, angular) {
     '$modalInstance',
     'callback',
     'actionType',
+    'item',
     'MeasurementMomentService',
     'EpochService',
     'DurationService'
   ];
-  var MeasurementMomentController = function($scope, $modalInstance, callback, actionType,
-    MeasurementMomentService, EpochService, DurationService) {
+  var MeasurementMomentController = function(
+    $scope,
+    $modalInstance,
+    callback,
+    actionType,
+    item,
+    MeasurementMomentService,
+    EpochService,
+    DurationService
+  ) {
     // functions
     $scope.addItem = addItem;
     $scope.editItem = editItem;
@@ -17,6 +26,7 @@ define(['lodash', 'angular'], function(_, angular) {
     $scope.updateMergeWarning = updateMergeWarning;
     $scope.isValidDuration = isValidDuration;
     $scope.cancel = cancel;
+    $scope.item = item;
 
     // init
     $scope.isEditing = false;

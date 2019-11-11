@@ -16,7 +16,7 @@ define([], function() {
         scope.userUid = $stateParams.userUid;
         scope.versionUuid = segmentAfterLastSlash(uri);
         scope.datasetUuid = $stateParams.datasetUuid;
-        scope.studyGraphUuid = $stateParams.studyGraphUuidD;
+        scope.studyGraphUuid = $stateParams.studyGraphUuid;
         if(scope.item.merge) {
           var sourceUserUuid = scope.item.merge.sourceUserUuid;
           var sourceDatasetUri = scope.item.merge.sourceDatasetUri;

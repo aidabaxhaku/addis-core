@@ -14,7 +14,7 @@ define([], function() {
           headers: {
             'Content-Type': 'application/xml'
           }
-        },
+        }
       }
     );
   };

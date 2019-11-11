@@ -1,12 +1,26 @@
 'use strict';
 define([],
   function() {
-    var dependencies = ['$scope', '$modalInstance', 'EpochService', 'callback', 'DurationService'];
-    var addEpochController = function($scope, $modalInstance, EpochService, callback, DurationService) {
+    var dependencies = [
+    '$scope', 
+    '$modalInstance', 
+    'EpochService', 
+    'callback', 
+    'DurationService',
+    'item'
+    ];
+    var addEpochController = function(
+      $scope, 
+      $modalInstance, 
+      EpochService, 
+      callback, 
+      DurationService,
+      item ) {
       // functions
       $scope.addItem = addItem;
       $scope.cancel = cancel;
       $scope.changeToInstantaneous = changeToInstantaneous;
+      $scope.item = item;
 
       // init
       $scope.periodTypeOptions = [{

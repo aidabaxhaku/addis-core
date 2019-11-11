@@ -6,6 +6,7 @@ define(['lodash', 'angular'],
       '$modalInstance',
       'callback',
       'actionType',
+      'item',
       'ActivityService'
     ];
     var ActivityController = function(
@@ -13,6 +14,7 @@ define(['lodash', 'angular'],
       $modalInstance,
       callback,
       actionType,
+      item,
       ActivityService
     ) {
       // functions
@@ -22,6 +24,7 @@ define(['lodash', 'angular'],
       $scope.editItem = editItem;
       $scope.cancel = cancel;
       $scope.typeChanged = typeChanged;
+      $scope.item = item;
 
       //init
       $scope.isEditing = false;

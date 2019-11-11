@@ -1,7 +1,13 @@
 'use strict';
 define(['lodash'],
   function(_) {
-    var dependencies = ['$scope', '$state', '$modalInstance', 'itemService', 'callback', 'item'];
+    var dependencies = [
+    '$scope', 
+    '$state', 
+    '$modalInstance', 
+    'itemService', 
+    'callback', 
+    'item'];
     var EditGroupController = function($scope, $state, $modalInstance, itemService, callback, item) {
       // functions
       $scope.editItem = editItem;

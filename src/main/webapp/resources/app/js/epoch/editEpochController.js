@@ -1,9 +1,14 @@
 'use strict';
 define([],
   function() {
-    var dependencies = ['$scope',
-      '$state', '$modalInstance',
-      'itemService', 'callback', 'DurationService', 'item'
+    var dependencies = [
+      '$scope',
+      '$state',
+      '$modalInstance',
+      'itemService',
+      'callback',
+      'DurationService',
+      'item'
     ];
     var EditEpochController = function($scope, $state, $modalInstance,
       itemService, callback, DurationService, item) {

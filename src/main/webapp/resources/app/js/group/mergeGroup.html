@@ -1,0 +1,34 @@
+<form novalidate ng-submit="merge(mergeTarget)">
+    <div class="grid-x">
+      <div class="cell">
+        <hr>
+        <p>
+          <h4>Merge this group into other group</h4>
+          <em>All measurements will be transferred to the target group</em>
+        </p>
+        <div class="grid-x">
+          <div class="cell large-6">
+            <label>Target group
+              <select ng-model="mergeTarget" ng-options="group.label for group in otherGroups"
+                ng-change="updateMergeWarning(mergeTarget)"></select>
+            </label>
+          </div>
+        </div>
+        <div class="grid-x">
+          <div class="cell large-10">
+            <div style="padding-bottom: 1rem;" class="warning" ng-show="showMergeWarning">Warning ! The selected target group contains overlapping measurements,
+              these will take precedence over the source group measurmements.</div>
+          </div>
+        </div>
+        <div class="grid-x">
+          <div class="cell large-6">
+            <button class="button small" ng-disabled="!mergeTarget || isEditing" type="submit">Merge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<button ng-click="cancel()" class="close-button" aria-label="Close reveal" type="button">
+  <span aria-hidden="true">&times;</span>
+</button>

@@ -2,31 +2,39 @@
 define([],
   function() {
     var dependencies = [
-      '$scope', '$modal', '$stateParams', '$anchorScroll', '$location',
-      'ConceptsService', 
+      '$scope',
+      '$modal',
+      '$stateParams',
+      '$anchorScroll',
+      '$location',
+      'ConceptsService',
       'PageTitleService',
-       'CONCEPT_GRAPH_UUID'
+      'CONCEPT_GRAPH_UUID'
     ];
     var ConceptsController = function(
-      $scope, $modal, $stateParams, $anchorScroll, $location,
-      ConceptsService, 
-      PageTitleService, 
+      $scope,
+      $modal,
+      $stateParams,
+      $anchorScroll,
+      $location,
+      ConceptsService,
+      PageTitleService,
       CONCEPT_GRAPH_UUID
     ) {
-                  // functions
-            $scope.sideNavClick = sideNavClick;
-            $scope.saveConcepts = saveConcepts;
-            $scope.areConceptsModified = areConceptsModified;
-            $scope.resetConcepts = resetConcepts;
-            $scope.openAddConceptDialog = openAddConceptDialog;
+      // functions
+      $scope.sideNavClick = sideNavClick;
+      $scope.saveConcepts = saveConcepts;
+      $scope.areConceptsModified = areConceptsModified;
+      $scope.resetConcepts = resetConcepts;
+      $scope.openAddConceptDialog = openAddConceptDialog;
 
       // init
       var datasetUri = 'http://trials.drugis/org/datasets/' + $stateParams.datasetUuid;
       $scope.datasetConcepts.then(reloadConceptsFromScratch);
 
-      $scope.$watch('dataset', function(dataset){
-        if(dataset){
-          PageTitleService.setPageTitle('ConceptsController', dataset.title +'\'s concepts');
+      $scope.$watch('dataset', function(dataset) {
+        if (dataset) {
+          PageTitleService.setPageTitle('ConceptsController', dataset.title + '\'s concepts');
         }
       });
 

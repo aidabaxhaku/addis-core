@@ -45,6 +45,8 @@ define(['lodash'], function(_) {
     $scope.studyImport = {};
     $scope.excelUpload = undefined;
     $scope.eudractUpload = undefined;
+    $scope.studyImport.nctId  = 'NCT01930188';
+    getNCTInfo($scope.studyImport);
 
     function uploadExcel(uploadedElement) {
       ExcelImportService.uploadExcel(
@@ -110,7 +112,7 @@ define(['lodash'], function(_) {
       }
     }
 
-    function importNCT(studyImport) { // NCT import
+    function importNCT(studyImport) { // NCT import from ClinicalTrials.gov
       $scope.isCreatingStudy = true;
       var uuid = UUIDService.generate();
       var importStudyRef = studyImport.basicInfo.id;
@@ -121,7 +123,7 @@ define(['lodash'], function(_) {
         importStudyRef: importStudyRef,
         commitTitle: 'Import ' + importStudyRef + ' from ClinicalTrials.gov',
         commitDescription: studyImport.basicInfo.title
-      }, success, errorCallback);
+      }, _.partial(successGraphUuid, uuid), errorCallback);
     }
 
     function uploadEudract(uploadedElement) {
@@ -134,6 +136,12 @@ define(['lodash'], function(_) {
         $scope.eudractUpload, 
         success, 
         errorCallback);
+    }
+
+    function successGraphUuid(newStudyGraphUuid) {
+      successCallback(newStudyGraphUuid);
+      $scope.isCreatingStudy = false;
+      $modalInstance.close();
     }
 
     function success(value, responseHeaders) {

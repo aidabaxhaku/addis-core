@@ -214,7 +214,7 @@ define(['angular', 'lodash'],
             successCallback: function() {
               return $scope.reloadDatasets;
             }
-          }
+            }
         });
       }
 

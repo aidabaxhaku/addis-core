@@ -1,7 +1,12 @@
 'use strict';
 define([],
   function() {
-    var dependencies = ['$scope', '$state', '$modalInstance', 'GroupService', 'callback'];
+    var dependencies = [
+    '$scope', 
+    '$state', 
+    '$modalInstance', 
+    'GroupService', 
+    'callback'];
     var CreateGroupController = function($scope, $state, $modalInstance, GroupService, callback) {
       // functions
       $scope.createGroup =createGroup;

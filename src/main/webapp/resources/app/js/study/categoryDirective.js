@@ -57,6 +57,9 @@ define([], function() {
               },
               actionType: function() {
                 return 'Add';
+              },
+              item: function() {
+                return {};
               }
             }
           });

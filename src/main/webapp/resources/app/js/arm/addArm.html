@@ -1,31 +1,41 @@
-<form novalidate ng-submit="createArm()">
+<form novalidate
+  ng-submit="createArm()">
   <div class="grid-container">
     <div class="grid-x">
       <div class="cell">
-        <h3>Add a new arm <inline-help help-key="add-arm"></inline-help></h3>
+        <h3>Add a new arm <inline-help help-key="add-arm"></inline-help>
+        </h3>
       </div>
     </div>
     <div class="grid-x">
       <div class="cell">
         <label>Name
-          <input autofocus="true" type="text" ng-model="item.label">
+          <input autofocus="true"
+            type="text"
+            ng-model="item.label">
         </label>
       </div>
     </div>
     <div class="grid-x">
       <div class="cell">
         <label>Description
-          <textarea rows="8" ng-model="item.comment"></textarea>
+          <textarea rows="8"
+            ng-model="item.comment"></textarea>
         </label>
       </div>
     </div>
     <div class="grid-x">
       <div class="cell">
-        <button class="button success" type="submit" ng-disabled="!item.label">Add</button>
+        <button class="button success"
+          type="submit"
+          ng-disabled="!item.label">Add</button>
       </div>
     </div>
   </div>
-  <button ng-click="cancel()" class="close-button" aria-label="Close reveal" type="button">
+  <button ng-click="cancel()"
+    class="close-button"
+    aria-label="Close reveal"
+    type="button">
     <span aria-hidden="true">&times;</span>
   </button>
 </form>

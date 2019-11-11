@@ -50,7 +50,7 @@ define(['angular', 'lodash'], function(angular, _) {
         function editItem() {
           $modal.open({
             scope: scope,
-            template: scope.settings.editItemtemplate,  // small t due to webpack templateurl module
+            template: scope.settings.editItemtemplate, // small t due to webpack templateurl module
             controller: scope.settings.editItemController,
             resolve: {
               callback: function() {
@@ -96,8 +96,7 @@ define(['angular', 'lodash'], function(angular, _) {
 
         function deleteItem() {
           service.deleteItem(scope.item, scope.studyUuid).then(function() {
-            scope.$emit('updateStudyDesign');
-            scope.reloadItems();
+          onEdit();
           });
         }
       }
