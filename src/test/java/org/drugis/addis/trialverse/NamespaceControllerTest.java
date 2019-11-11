@@ -10,12 +10,12 @@ import org.drugis.addis.trialverse.model.mapping.TriplestoreUuidAndOwner;
 import org.drugis.addis.trialverse.service.MappingService;
 import org.drugis.addis.trialverse.service.TriplestoreService;
 import org.drugis.addis.trialverse.service.impl.ReadValueException;
-import org.drugis.addis.util.WebConstants;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -93,7 +93,7 @@ public class NamespaceControllerTest {
     when(triplestoreService.queryNameSpaces()).thenReturn(namespaceCollection);
     mockMvc.perform(get("/namespaces"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$", hasSize(2)))
             .andExpect(jsonPath("$[0].name", is("a")));
     verify(triplestoreService).queryNameSpaces();
@@ -105,7 +105,7 @@ public class NamespaceControllerTest {
     when(triplestoreService.queryNameSpaces()).thenReturn(namespaceCollection);
     mockMvc.perform(get("/namespaces"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$", hasSize(0)));
     verify(triplestoreService).queryNameSpaces();
   }
@@ -120,7 +120,7 @@ public class NamespaceControllerTest {
 
     mockMvc.perform(get("/namespaces/UID-1").param("version", versionUri.toString()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.name", is("a")));
 
     verify(triplestoreService).getNamespaceVersioned(triplestoreUuidAndOwner, versionUri);
@@ -134,7 +134,7 @@ public class NamespaceControllerTest {
 
     mockMvc.perform(get("/namespaces/" + namespaceUid + "/outcomes").param("version", versionUri.toString()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$[0].uri", is(testOutCome.getUri().toString())));
 
     verify(triplestoreService).getOutcomes(versionedUuid, versionUri);
@@ -148,7 +148,7 @@ public class NamespaceControllerTest {
 
     mockMvc.perform(get("/namespaces/" + namespaceUid + "/interventions").param("version", versionUri.toString()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$[0].uri", is(testIntervention.getUri().toString())));
     verify(triplestoreService).getInterventions(versionedUuid, versionUri);
     verify(mappingService).getVersionedUuid(namespaceUid);
@@ -161,7 +161,7 @@ public class NamespaceControllerTest {
 
     mockMvc.perform(get("/namespaces/" + namespaceUid + "/studies").param("version", versionUri.toString()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$[0].studyUid", is(study.getStudyUid())))
             .andExpect(jsonPath("$[0].name", is(study.getName())))
             .andExpect(jsonPath("$[0].title", is(study.getTitle())));
