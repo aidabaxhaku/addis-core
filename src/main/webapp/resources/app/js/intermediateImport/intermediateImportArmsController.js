@@ -11,7 +11,7 @@ define(['jquery'], function($) {
     'StudyService',
     'UserResource',
     'STUDY_CATEGORY_SETTINGS'
-  ]; 
+  ];
   var IntermediateImportArmsController = function(
     $scope,
     $stateParams,
@@ -28,11 +28,15 @@ define(['jquery'], function($) {
     //init
     $scope.arms = [];
     $scope.groups = [];
+    $scope.measurementMoments = [];
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
     $scope.categorySettings = STUDY_CATEGORY_SETTINGS;
     $scope.isEditingAllowed = true;
     $scope.alert = "";
+    $scope.measuredAtMoments = [];
+    $scope.toggleSidenav = buildToggler('closeEventsDisabled');
+
     //functions   
     $scope.nextEpoch = nextEpoch;
     $scope.editGroup = editGroup;
@@ -50,6 +54,12 @@ define(['jquery'], function($) {
     loadStudy();
 
     reloadStudyModel();
+
+    function buildToggler(componentId) {
+      return function() {
+        $mdSidenav(componentId).toggle();
+      };
+    }
 
     function reloadStudyModel() {
       ArmService.queryItems().then(function(arms) {

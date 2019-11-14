@@ -289,25 +289,44 @@ define(
             parent: 'dataset',
             templateUrl: './intermediateImport/intermediateImportArms.html',
             controller: 'IntermediateImportArmsController',
+            resolve: {
+              activeTab: function() {
+                return 'intermediate-arm';
+              }
+            }
           })
           .state('intermediate-epoch', {
             url: '/intermediateImport/:studyGraphUuid/epoch',
             parent: 'dataset',
             templateUrl: './intermediateImport/intermediateImportEpochs.html',
             controller: 'IntermediateImportEpochsController',
+            resolve: {
+              activeTab: function() {
+                return 'intermediate-epoch';
+              }
+            }
           })
-          
           .state('intermediate-activity', {
             url: '/intermediateImport/:studyGraphUuid/epoch/activity',
             parent: 'dataset',
             templateUrl: './intermediateImport/intermediateImportActivities.html',
             controller: 'IntermediateImportActivitiesController',
+            resolve: {
+              activeTab: function() {
+                return 'intermediate-activity';
+              }
+            }
           })
           .state('intermediate-measurementMoment', {
             url: '/intermediateImport/:studyGraphUuid/epoch/activity/measurementMoment',
             parent: 'dataset',
             templateUrl: './intermediateImport/intermediateImportMeasurementMoments.html',
             controller: 'IntermediateImportMeasurementMomentsController',
+            resolve: {
+              activeTab: function() {
+                return 'intermediate-measurementMoment';
+              }
+            }
           })
           .state('user', {
             abstract: true,

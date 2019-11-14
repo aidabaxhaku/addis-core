@@ -27,8 +27,11 @@ define(['jquery'], function($) {
     $scope.epochs = [];
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
-    $scope.alert =  "";
-    
+    $scope.alert = "";
+    $scope.screening = {
+      duration: "PT0S",
+      label: "Screening"
+    }
     //functions    
     $scope.nextActivity = nextActivity;
     $scope.previous = previous;
@@ -36,8 +39,7 @@ define(['jquery'], function($) {
     $scope.editEpoch = editEpoch;
     $scope.deleteEpoch = deleteEpoch;
     $scope.isValidDuration = DurationService.isValidDuration;
-  //  $scope.acceptEpoch = acceptEpoch;
-    
+
     loadStudy();
 
     reloadStudyModel();
@@ -45,30 +47,11 @@ define(['jquery'], function($) {
     function nextActivity() {
       if ($scope.epochs.length > 0)
         $state.go('intermediate-activity', $stateParams);
-  //    console.log($stateParams)
+      //    console.log($stateParams)
       else {
         $scope.alert = "*Please add epochs";
       }
     }
-
-    // function acceptEpoch(epoch) {
-    //     $modal.open({
-    //     scope: $scope,
-    //     templateUrl: '../epoch/editEpoch.html',
-    //     controller: 'EditEpochController',
-    //     resolve: {
-    //       callback: function() {
-    //         return reloadStudyModel;
-    //       },
-    //       itemService: function() {
-    //         return EpochService;
-    //       },
-    //       item: function() {
-    //         return epoch;
-    //       }
-    //     }
-    //   });
-    // }
 
     function previous() {
       $state.go('intermediate-arm', $stateParams);

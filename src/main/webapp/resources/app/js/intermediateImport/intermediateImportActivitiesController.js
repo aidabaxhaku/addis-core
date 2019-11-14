@@ -33,6 +33,20 @@ define(['jquery'], function($) {
     $scope.addActivity = addActivity;
     $scope.deleteActivity = deleteActivity;
 
+    $scope.selectTab = selectTab;
+
+      if (!$scope.activetab) {
+        $scope.activetab = $state.current.name;
+      }
+
+      function selectTab(tab) {
+        if ($state.current.name !== tab) {
+          $scope.activetab = tab;
+          $state.go(tab, {
+            userUid: $stateParams.userUid
+          });
+        }
+      }
     function next() {
       if ($scope.activities.length > 0)
         $state.go('intermediate-measurementMoment', $stateParams);

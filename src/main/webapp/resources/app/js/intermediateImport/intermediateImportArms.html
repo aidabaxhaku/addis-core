@@ -6,75 +6,79 @@
     <li ng-if="!versionUuid"><a ui-sref="dataset({userUid: userUid, datasetUuid: datasetUuid})">{{dataset.title}}</a></li>
     <li class="current active">Intermediate Import </li>
   </ul>
-  <ul class="breadcrumbs">
-    <li class="current active">Arms</li>
-    <li><a ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
-    <li><a ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
-    <li><a ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
-  </ul>
-  <div class="grid-container">
-    <h1>Repair arms and groups</h1>
-    <h2>Arms</h2>
 
-    <div class="panel">
-      <div ng-if="arms.length === 0"
-        class="callout secondary">
-        <h5>**The study currently contains no arms. Please reclassify the other
-          groups as arms.</h5>
+  <div class="grid-container">
+    <div class="grid-x">
+      <div class="cell large-2 medium-3 show-for-medium-up"
+        role="navigation"
+        title="Categories">
+        <div class="align-left">
+          <ul class="side-nav">
+            <li class="current active">Arms</li>
+            <li class="divider"></li>
+
+            <li><a ng-click="sideNavClick('intermediate-epoch')" ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
+            <li class="divider"></li>
+
+            <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
+            <li class="divider"></li>
+
+            <li><a ng-click="sideNavClick('intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
+          </ul>
+        </div>
       </div>
-      <button ng-click="addArm()"
-        type="button"
-        class="button">Add <i class="fa fa-plus"></i>
-      </button>
-    </div>
-    <div class="panel callout primary clearfix"
-      ng-repeat="arm in arms">{{arm.label}}
-      <a ng-click="editArm(arm)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
-      <a ng-click="mergeArm(arm)" title="merge"><i class="fa fa-code-fork  fa-rotate-180 fa-2x fa-fw"></i> </a>
-      <a ng-click="reclassifyArm(arm)" title="reclassify as group">
+
+      <div class="grid-container">
+        <h1>Repair arms and groups</h1>
+        <h2>Arms</h2>
+        <div ng-if="arms.length === 0"
+          class="callout secondary">
+          <h5>**The study currently contains no arms. Please reclassify the
+            other
+            groups as arms.</h5>
+        </div>
+        <button ng-click="addArm()"
+          type="button"
+          class="button">Add <i class="fa fa-plus"></i>
+        </button>
+        <div class="panel callout primary clearfix"
+          ng-repeat="arm in arms">{{arm.label}}
+          <a ng-click="editArm(arm)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
+          <a ng-click="mergeArm(arm)" title="merge"><i class="fa fa-code-fork  fa-rotate-180 fa-2x fa-fw"></i> </a>
+          <a ng-click="reclassifyArm(arm)" title="reclassify as group">
             <i class="fa fa-arrow-down fa-2x fa-fw"></i> </a>
-      <a ng-click="deleteArm(arm)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
+          <a ng-click="deleteArm(arm)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
+        </div>
+        <h2>Other groups</h2>
+        <h5>Reclassify the <b>identical</b> groups below as arms. Make sure
+          they
+          don't contain data.</h5>
+        <div class="panel callout primary clearfix"
+          ng-repeat="group in groups"
+          class="cell large-10 medium-12 small-12">
+          {{group.label}}
+          <a ng-click="editGroup(group)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
+          <a ng-click="mergeGroup(group)" title="merge"> <i class="fa fa-code-fork fa-rotate-180 fa-2x fa-fw"></i> </a>
+          <a ng-click="reclassifyGroup(group)" title="reclassify as arm"> <i class="fa fa-arrow-up fa-2x fa-fw"></i> </a>
+          <a ng-click="deleteGroup(group)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
+        </div>
+
+        <button ng-click="addGroup()"
+          type="button"
+          class="button">Add <i class="fa fa-plus"></i>
+        </button>
+        <button></button>
+        <button ng-click="previous()"
+          type="button"
+          class="button"><i class="fa fa-backward"></i> Previous
+        </button>
+        <button ng-click="nextEpoch()"
+          type="button"
+          class="button">Next <i class="fa fa-forward"></i>
+        </button>
+        <div ng-if='alert !== ""'
+          data-alertclass="alert-box alert"> {{ alert }}
+        </div>
+      </div>
     </div>
-
   </div>
-</div>
-
-<div>
-  <div class="grid-container">
-    <h2>Other groups</h2>
-    <h5>Reclassify the <b>identical</b> groups below as arms. Make sure they
-      don't contain data.</h5>
-  </div>
-  <div class="grid-container">
-    <div class="panel callout primary clearfix"
-      ng-repeat="group in groups"
-      class="cell large-10 medium-12 small-12">
-      {{group.label}}
-      <a ng-click="editGroup(group)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
-      <a ng-click="mergeGroup(group)" title="merge"> <i class="fa fa-code-fork fa-rotate-180 fa-2x fa-fw"></i> </a>
-      <a ng-click="reclassifyGroup(group)" title="reclassify as arm"> <i class="fa fa-arrow-up fa-2x fa-fw"></i> </a>
-      <a ng-click="deleteGroup(group)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
-    </div>
-  </div>
-
-</div>
-<div class="grid-container">
-  <button ng-click="addGroup()"
-    type="button"
-    class="button">Add <i class="fa fa-plus"></i>
-  </button>
-  <button></button>
-  <button ng-click="previous()"
-    type="button"
-    class="button"><i class="fa fa-backward"></i> Previous
-  </button>
-  <button ng-click="nextEpoch()"
-    type="button"
-    class="button">Next <i class="fa fa-forward"></i>
-  </button>
-  <div ng-if='alert !== ""'
-    data-alert
-    class="alert-box alert"> {{ alert }}
-  </div>
-</div>
-</div>
