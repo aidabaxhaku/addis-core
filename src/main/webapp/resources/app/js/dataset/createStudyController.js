@@ -31,7 +31,6 @@ define(['lodash'], function(_) {
     $scope.checkUniqueShortName = checkUniqueShortName;
     $scope.createStudy = createStudy;
     $scope.isValidNct = isValidNct;
-    $scope.isValidUpload = false;
     $scope.cancel = cancel;
     $scope.getNCTInfo = getNCTInfo;
     $scope.uploadExcel = uploadExcel;
@@ -39,17 +38,17 @@ define(['lodash'], function(_) {
     $scope.uploadEudract = uploadEudract;
     $scope.importEudract = importEudract;
     $scope.importIntermediateStudy = importIntermediateStudy;
-//    $scope.importNCT = importNCT;
+    $scope.selectTab = selectTab;
 
     // init
+    $scope.isValidUpload = false;
     $scope.isCreatingStudy = false;
     $scope.importing = false;
     $scope.isUniqueIdentifier = true;
     $scope.studyImport = {};
     $scope.excelUpload = undefined;
     $scope.eudractUpload = undefined;
-    $scope.studyImport.nctId  = 'NCT01930188';
-    getNCTInfo($scope.studyImport);
+    $scope.activeTab = 'empty';
 
     function uploadExcel(uploadedElement) {
       ExcelImportService.uploadExcel(
@@ -133,11 +132,13 @@ define(['lodash'], function(_) {
       $scope.isCreatingStudy = true;
       var title = studyImport.basicInfo.title;
       var nctId = studyImport.basicInfo.id;//nctId;
-      var postBody = {title: title, 
-                      nctId: nctId};
+      var postBody = {
+        title: title,
+        nctId: nctId
+      };
       IntermediateImportResource.import({
         userUid: $stateParams.userUid,
-        datasetUuid: $stateParams.datasetUuid      
+        datasetUuid: $stateParams.datasetUuid
       }, postBody, function(result) {
         $modalInstance.close();
         successCallback(result);
@@ -151,8 +152,8 @@ define(['lodash'], function(_) {
     function importEudract() {
       $scope.isCreatingStudy = true;
       ImportEudraCTResource.import(_.pick($stateParams, ['userUid', 'datasetUuid']),
-        $scope.eudractUpload, 
-        success, 
+        $scope.eudractUpload,
+        success,
         errorCallback);
     }
 
@@ -174,6 +175,10 @@ define(['lodash'], function(_) {
       console.error('error', error);
       $scope.isCreatingStudy = false;
       $modalInstance.close();
+    }
+
+    function selectTab(tab) {
+      $scope.activeTab = tab;
     }
 
     function cancel() {
