@@ -14,8 +14,8 @@ define([], function() {
         commitDescription: '@commitDescription'
       }, {
         import: {
-          method: 'post',
-        },
+          method: 'post'
+        }
       }
     );
   };

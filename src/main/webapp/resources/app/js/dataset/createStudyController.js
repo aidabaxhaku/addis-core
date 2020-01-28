@@ -8,6 +8,7 @@ define(['lodash'], function(_) {
     'StudyService',
     'ImportStudyResource',
     'ImportStudyInfoResource',
+    'IntermediateImportResource',
     'UUIDService',
     'ExcelImportService',
     'ImportEudraCTResource'
@@ -21,6 +22,7 @@ define(['lodash'], function(_) {
     StudyService,
     ImportStudyResource,
     ImportStudyInfoResource,
+    IntermediateImportResource,
     UUIDService,
     ExcelImportService,
     ImportEudraCTResource
@@ -36,7 +38,8 @@ define(['lodash'], function(_) {
     $scope.importExcel = importExcel;
     $scope.uploadEudract = uploadEudract;
     $scope.importEudract = importEudract;
-    $scope.importNCT = importNCT;
+    $scope.importIntermediateStudy = importIntermediateStudy;
+//    $scope.importNCT = importNCT;
 
     // init
     $scope.isCreatingStudy = false;
@@ -124,6 +127,21 @@ define(['lodash'], function(_) {
         commitTitle: 'Import ' + importStudyRef + ' from ClinicalTrials.gov',
         commitDescription: studyImport.basicInfo.title
       }, _.partial(successGraphUuid, uuid), errorCallback);
+    }
+
+    function importIntermediateStudy(studyImport) {
+      $scope.isCreatingStudy = true;
+      var title = studyImport.basicInfo.title;
+      var nctId = studyImport.basicInfo.id;//nctId;
+      var postBody = {title: title, 
+                      nctId: nctId};
+      IntermediateImportResource.import({
+        userUid: $stateParams.userUid,
+        datasetUuid: $stateParams.datasetUuid      
+      }, postBody, function(result) {
+        $modalInstance.close();
+        successCallback(result);
+      }, errorCallback);
     }
 
     function uploadEudract(uploadedElement) {

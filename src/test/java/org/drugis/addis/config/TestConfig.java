@@ -8,6 +8,7 @@ import org.drugis.addis.analyses.repository.NetworkMetaAnalysisRepository;
 import org.drugis.addis.analyses.service.AnalysisService;
 import org.drugis.addis.covariates.CovariateRepository;
 import org.drugis.addis.importer.service.ClinicalTrialsImportService;
+import org.drugis.addis.intermediateImport.repository.IntermediateImportRepository;
 import org.drugis.addis.interventions.repository.InterventionRepository;
 import org.drugis.addis.interventions.service.InterventionService;
 import org.drugis.addis.models.repository.FunnelPlotRepository;
@@ -57,7 +58,9 @@ import static org.mockito.Mockito.mock;
         "org.drugis.addis.models.service",
         "org.drugis.addis.statistics.controller",
         "org.drugis.addis.ordering.controller",
-        "org.drugis.addis.workspaceSettings.controller"
+        "org.drugis.addis.workspaceSettings.controller",
+        "org.drugis.addis.intermediateImport.repository"
+
 })
 public class TestConfig {
   @Bean
@@ -234,5 +237,9 @@ public class TestConfig {
   public GraphWriteRepository graphWriteRepository() {
     return mock(GraphWriteRepository.class);
   }
+
+  @Bean
+  public IntermediateImportRepository intermediateImportRepository() { return mock(IntermediateImportRepository.class); }
+
 }
 

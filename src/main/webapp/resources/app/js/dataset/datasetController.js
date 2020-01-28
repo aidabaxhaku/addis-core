@@ -261,11 +261,11 @@ define(['lodash'],
           controller: 'CreateStudyController',
           resolve: {
             successCallback: function() {
-              return function(newStudyGraphUuid) {
+              return function(intermediateImportResponse) {
                 $state.go('intermediate-arm', {
                   userUid: $stateParams.userUid,
                   datasetUuid: $stateParams.datasetUuid,
-                  studyGraphUuid: newStudyGraphUuid
+                  intermediateImportId: intermediateImportResponse.intermediateImportId
                 });
               };
             }

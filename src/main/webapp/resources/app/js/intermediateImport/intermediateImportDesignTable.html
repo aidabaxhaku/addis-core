@@ -1,6 +1,5 @@
 <div ui-view>
   <navbar-directive> </navbar-directive>
-
   <ul class="breadcrumbs fixed">
     <li><a ui-sref="datasets({userUid: user.id})">{{user.firstName}} {{user.lastName}}</a></li>
     <li><a ui-sref="datasets({userUid: userUid})">Datasets</a></li>
@@ -20,51 +19,33 @@
             <li><a ng-click="sideNavClick('intermediate-epoch')" ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
             <li class="divider"></li>
 
-            <li class="current active">Activities</li>
+            <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
             <li class="divider"></li>
 
-            <li><a ng-click="sideNavClick('intermediate-designTable')" ui-sref="intermediate-designTable({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Study design</a></li>
+            <li class="current active">Study design</li>
             <li class="divider"></li>
-    
+
             <li><a ng-click="sideNavClick('intermediate-intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
           </ul>
         </div>
       </div>
-      <div class="grid-container">
-        <h1>Repair activities</h1>
-        <h2>Activities</h2>
+      <div class="cell large-8 medium-3 show-for-medium-up">
+        <h1>Repair Study Design</h1>
         <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank">This is {{::study.nctId}}</a></div>
 
-        <div class="grid-container"
-          ng-if="activities.length === 0">
-          <h5>**The study currently contains no activities. Please add new
-            activities.</h5>
-        </div>
-        <div class="panel callout primary clearfix"
-          ng-repeat="activity in activities"> {{activity.label}}
-          <a ng-click="editActivity(activity)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
-          <a ng-click="deleteActivity(activity)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
-        </div>
+        <h5>Please fill in the study design table. <h5>
+            <study-design is-editing-allowed="isEditingAllowed"></study-design>
 
-        <button ng-click="addActivity()"
-          type="button"
-          class="button">Add <i class="fa fa-plus"></i>
-        </button>
+            <button ng-click="previous()"
+              type="button"
+              class="button"> <i class="fa fa-backward"></i> Previous
+            </button>
 
-        <button ng-click="previous()"
-          type="button"
-          class="button"><i class="fa fa-backward"></i> Previous
-        </button>
-        <button ng-click="next()"
-          type="button"
-          class="button">Next <i class="fa fa-forward"></i>
-        </button>
-        <div ng-if='alert !== ""'
-          data-alert
-          class="alert-box alert">
-          {{ alert }}
-        </div>
-        
+            <button ng-click="next()"
+              type="button"
+              class="button">Next <i class="fa fa-forward"></i>
+            </button>
+
       </div>
     </div>
   </div>

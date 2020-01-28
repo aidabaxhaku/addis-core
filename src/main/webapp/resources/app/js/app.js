@@ -284,9 +284,15 @@ define(
             templateUrl: './home/home.html',
             controller: 'HomeController',
           })
-          .state('intermediate-arm', {
-            url: '/intermediateImport/:studyGraphUuid',
+          .state('intermediate-import', {
+            url: '/intermediateImport/:intermediateImportId',
             parent: 'dataset',
+            controller: 'IntermediateImportController',
+            abstract: true,
+          })
+          .state('intermediate-arm', {
+            url: '/arm',
+            parent: 'intermediate-import',
             templateUrl: './intermediateImport/intermediateImportArms.html',
             controller: 'IntermediateImportArmsController',
             resolve: {
@@ -296,8 +302,8 @@ define(
             }
           })
           .state('intermediate-epoch', {
-            url: '/intermediateImport/:studyGraphUuid/epoch',
-            parent: 'dataset',
+            url: '/epoch',
+            parent: 'intermediate-import',
             templateUrl: './intermediateImport/intermediateImportEpochs.html',
             controller: 'IntermediateImportEpochsController',
             resolve: {
@@ -306,9 +312,20 @@ define(
               }
             }
           })
+          .state('intermediate-designTable', {
+            url: '/designTable',
+            parent: 'intermediate-import',
+            templateUrl: './intermediateImport/intermediateImportDesignTable.html',
+            controller: 'IntermediateImportDesignTableController',
+            resolve: {
+              activeTab: function() {
+                return 'intermediate-designTable';
+              }
+            }
+          })
           .state('intermediate-activity', {
-            url: '/intermediateImport/:studyGraphUuid/epoch/activity',
-            parent: 'dataset',
+            url: '/activity',
+            parent: 'intermediate-import',
             templateUrl: './intermediateImport/intermediateImportActivities.html',
             controller: 'IntermediateImportActivitiesController',
             resolve: {
@@ -318,8 +335,8 @@ define(
             }
           })
           .state('intermediate-measurementMoment', {
-            url: '/intermediateImport/:studyGraphUuid/epoch/activity/measurementMoment',
-            parent: 'dataset',
+            url: '/measurementMoment',
+            parent: 'intermediate-import',
             templateUrl: './intermediateImport/intermediateImportMeasurementMoments.html',
             controller: 'IntermediateImportMeasurementMomentsController',
             resolve: {

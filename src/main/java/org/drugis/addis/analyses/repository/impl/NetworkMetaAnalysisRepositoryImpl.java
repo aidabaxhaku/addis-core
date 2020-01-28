@@ -25,7 +25,8 @@ public class NetworkMetaAnalysisRepositoryImpl implements NetworkMetaAnalysisRep
 
   @Override
   public NetworkMetaAnalysis create(AnalysisCommand analysisCommand) {
-    NetworkMetaAnalysis networkMetaAnalysis = new NetworkMetaAnalysis(analysisCommand.getProjectId(), analysisCommand.getTitle());
+    NetworkMetaAnalysis networkMetaAnalysis =
+            new NetworkMetaAnalysis(analysisCommand.getProjectId(), analysisCommand.getTitle());
     em.persist(networkMetaAnalysis);
     return update(networkMetaAnalysis);
   }

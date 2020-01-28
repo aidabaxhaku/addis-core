@@ -998,3 +998,15 @@ ALTER TABLE VersionMapping ADD COLUMN archived BOOLEAN DEFAULT false;
 ALTER TABLE VersionMapping ADD COLUMN archivedon VARCHAR;
 --rollback ALTER TABLE VersionMapping DROP COLUMN archived;
 --rollback ALTER TABLE VersionMapping DROP COLUMN archivedon;
+
+--changeset ab:82
+CREATE TABLE intermediateImport
+(
+    id            SERIAL NOT NULL,
+    title         VARCHAR NOT NULL,
+    lastModified  DATE NOT NULL,
+    studyInProgress TEXT,
+    datasetUuid   VARCHAR NOT NULL,
+    PRIMARY KEY (id)
+);
+--rollback DROP TABLE intermediateImport;

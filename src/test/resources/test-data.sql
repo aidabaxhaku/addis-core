@@ -142,3 +142,7 @@ INSERT INTO public.scaledUnit(id, projectId, conceptUri, multiplier, name) VALUE
 INSERT INTO public.ordering(analysisId, ordering) VALUES(-10, 'ordering: {alternatives:["intervention 1","intervention 2"], criteria:["outcome 2","outcome 2"]}');
 
 INSERT INTO public.workspaceSettings(analysisId, settings) VALUES(-10, '{settings: {some: "setting"}, toggledColumns: {criteria: true, units: true, description: false, references: false}}');
+
+INSERT INTO public.intermediateImport(id, title, lastModified, studyInProgress, datasetUuid) VALUES(10, 'Efficacy and Safety of Semaglutide', '2019-10-11', 'Study in progress', 'someDatasetUuid');
+INSERT INTO public.intermediateImport(id, title, lastModified, studyInProgress, datasetUuid) VALUES(20, 'Efficacy and Safety of Medicine123', '2020-01-12', 'Study in progress', 'someDatasetUuid');
+--INSERT INTO public.intermediateImport(id, title, lastModified, studyInProgress, datasetUuid) VALUES(20, 'Efficacy and Safety', '2020-01-12 20:08:08', 'Study in progress', 'someDatasetUuid');

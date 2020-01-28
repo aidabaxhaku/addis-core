@@ -23,14 +23,20 @@
             <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
             <li class="divider"></li>
 
+            <li><a ng-click="sideNavClick('intermediate-designTable')" ui-sref="intermediate-designTable({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Study Design</a></li>
+            <li class="divider"></li>
+
             <li><a ng-click="sideNavClick('intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
           </ul>
         </div>
       </div>
 
-      <div class="grid-container">
+      <div class="cell large-8 medium-3 show-for-medium-up">
         <h1>Repair arms and groups</h1>
-        <h2>Arms</h2>
+        <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank">{{::study.nctId}}</a></div>
+
+        <h2>Arms <inline-help help-key="add-arm"></inline-help>
+        </h2>
         <div ng-if="arms.length === 0"
           class="callout secondary">
           <h5>**The study currently contains no arms. Please reclassify the
@@ -43,26 +49,46 @@
         </button>
         <div class="panel callout primary clearfix"
           ng-repeat="arm in arms">{{arm.label}}
+          <span ng-if="arm.results.length === 0">
+            <font color="red">No data!</font>
+          </span>
           <a ng-click="editArm(arm)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
           <a ng-click="mergeArm(arm)" title="merge"><i class="fa fa-code-fork  fa-rotate-180 fa-2x fa-fw"></i> </a>
           <a ng-click="reclassifyArm(arm)" title="reclassify as group">
-            <i class="fa fa-arrow-down fa-2x fa-fw"></i> </a>
+            <i class="fa fa-arrow-down fa-fw"></i> </a>
           <a ng-click="deleteArm(arm)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
         </div>
         <h2>Other groups</h2>
         <h5>Reclassify the <b>identical</b> groups below as arms. Make sure
-          they
-          don't contain data.</h5>
-        <div class="panel callout primary clearfix"
-          ng-repeat="group in groups"
-          class="cell large-10 medium-12 small-12">
-          {{group.label}}
-          <a ng-click="editGroup(group)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
-          <a ng-click="mergeGroup(group)" title="merge"> <i class="fa fa-code-fork fa-rotate-180 fa-2x fa-fw"></i> </a>
-          <a ng-click="reclassifyGroup(group)" title="reclassify as arm"> <i class="fa fa-arrow-up fa-2x fa-fw"></i> </a>
-          <a ng-click="deleteGroup(group)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
-        </div>
-
+          they don't contain data.</h5>
+        <!-- <div class="panel callout primary clearfix" -->
+        <table>
+          <thead>
+            <tr>
+              <th>Study</th>
+              <th>Data?</th>
+              <th>Edit</th>
+              <th>Merge</th>
+              <th>Reclassify</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="group in groups"
+              class="cell large-10 medium-12 small-12">
+              <td>
+                {{group.label}} </td>
+              <td> <span ng-if="group.results.length === 0">
+                  <font color="red">No data!</font>
+                </span></td>
+              <td> <a ng-click="editGroup(group)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a></td>
+              <td> <a ng-click="mergeGroup(group)" title="merge"> <i class="fa fa-code-fork fa-rotate-180 fa-2x fa-fw"></i> </a></td>
+              <td> <a ng-click="reclassifyGroup(group)" title="reclassify as arm"> <i class="fa fa-arrow-up fa-2x fa-fw"></i> </a></td>
+              <td> <a ng-click="deleteGroup(group)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a></td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- </div> -->
         <button ng-click="addGroup()"
           type="button"
           class="button">Add <i class="fa fa-plus"></i>
@@ -72,7 +98,7 @@
           type="button"
           class="button"><i class="fa fa-backward"></i> Previous
         </button>
-        <button ng-click="nextEpoch()"
+        <button ng-click="next()"
           type="button"
           class="button">Next <i class="fa fa-forward"></i>
         </button>
@@ -82,3 +108,4 @@
       </div>
     </div>
   </div>
+</div>

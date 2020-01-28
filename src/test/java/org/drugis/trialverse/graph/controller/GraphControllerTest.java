@@ -1,9 +1,14 @@
 package org.drugis.trialverse.graph.controller;
 
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.jena.riot.RDFLanguages;
+import org.drugis.addis.TestUtils;
 import org.drugis.addis.importer.service.ClinicalTrialsImportService;
+import org.drugis.addis.intermediateImport.IntermediateImport;
+import org.drugis.addis.intermediateImport.IntermediateImportCommand;
+import org.drugis.addis.intermediateImport.repository.IntermediateImportRepository;
 import org.drugis.addis.security.Account;
 import org.drugis.addis.security.repository.AccountRepository;
 import org.drugis.addis.util.WebConstants;
@@ -35,6 +40,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.security.Principal;
+import java.util.Date;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -61,6 +67,9 @@ public class GraphControllerTest {
 
   @Mock
   private AccountRepository accountRepository;
+
+  @Mock
+  private IntermediateImportRepository intermediateImportRepository;
 
   @Mock
   private GraphService graphService;
@@ -91,7 +100,7 @@ public class GraphControllerTest {
 
   @After
   public void tearDown() {
-    verifyNoMoreInteractions(graphWriteRepository);
+    verifyNoMoreInteractions(graphWriteRepository, accountRepository, intermediateImportRepository, graphService, clinicalTrialsImportService);
   }
 
   @Test
@@ -120,9 +129,10 @@ public class GraphControllerTest {
             .andExpect(status().isOk())
             .andExpect(header().string(WebConstants.X_EVENT_SOURCE_VERSION, versionHeader.getValue()));
 
-    verify(versionMappingRepository).getVersionMappingByDatasetUrl(trialverseDatasetUri);
     verify(datasetReadRepository).isOwner(trialverseDatasetUri, user);
+    verify(graphService).jsonGraphInputStreamToTurtleInputStream(any());
     verify(graphWriteRepository).updateGraph(Matchers.anyObject(), anyString(), any(InputStream.class), anyString(), anyString());
+    verify(versionMappingRepository).getVersionMappingByDatasetUrl(trialverseDatasetUri);
   }
 
   @Test
@@ -149,9 +159,10 @@ public class GraphControllerTest {
             .andExpect(status().isOk())
             .andExpect(header().string(WebConstants.X_EVENT_SOURCE_VERSION, versionHeader.getValue()));
 
-    verify(versionMappingRepository).getVersionMappingByDatasetUrl(trialverseDatasetUri);
     verify(datasetReadRepository).isOwner(trialverseDatasetUri, user);
     verify(graphWriteRepository).updateGraph(Matchers.anyObject(), anyString(), any(InputStream.class), anyString(), anyString());
+    verify(graphService).jsonGraphInputStreamToTurtleInputStream(any(InputStream.class));
+    verify(versionMappingRepository).getVersionMappingByDatasetUrl(trialverseDatasetUri);
   }
 
   @Test
@@ -248,6 +259,85 @@ public class GraphControllerTest {
   }
 
   @Test
+  public void testIntermediateImport() throws Exception {
+    String datasetUuid = "datasetUuid";
+    String nctId = "NCT01930188";
+    String title = "Title";
+    IntermediateImportCommand intermediateImportCommand = new IntermediateImportCommand(nctId, title);
+    String content = TestUtils.createJson(intermediateImportCommand);
+    URI datasetUri = new URI(Namespaces.DATASET_NAMESPACE + datasetUuid);
+    when(datasetReadRepository.isOwner(datasetUri, user)).thenReturn(true);
+    mockMvc.perform(
+            post("/users/" + userHash + "/datasets/" + datasetUuid + "/intermediateImport")
+                    .content(content)
+                    .principal(user)
+                    .contentType(WebConstants.getApplicationJsonUtf8Value())
+    )
+            .andExpect(status().isCreated());
+    verify(clinicalTrialsImportService).intermediateImport(nctId, datasetUuid, title);
+  }
+
+  @Test
+  public void testGetIntermediateImport() throws Exception {
+    Integer intermediateImportId = 10;
+    String datasetUuid = "datasetUuid";
+    StdDateFormat format = new StdDateFormat();
+    Date date = format.parse("2020-01-12T00:00");
+    IntermediateImport intermediateImport = new IntermediateImport(intermediateImportId, "Efficacy and Safety of Semaglutide", date, "Study in progress", "someDatasetUuid");
+    when(intermediateImportRepository.get(intermediateImport.getId())).thenReturn(intermediateImport);
+    String updateContent = TestUtils.createJson(intermediateImport);
+    URI datasetUri = new URI(Namespaces.DATASET_NAMESPACE + datasetUuid);
+    when(datasetReadRepository.isOwner(datasetUri, user)).thenReturn(true);
+
+    mockMvc.perform(
+            get("/users/" + userHash + "/datasets/" + datasetUuid + "/intermediateImport/" + intermediateImportId)
+                    .content(updateContent)
+                    .principal(user)
+                    .contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(status().isOk());
+    verify(intermediateImportRepository).get(intermediateImport.getId());
+  }
+
+  @Test
+  public void testUpdateIntermediateImport() throws Exception {
+    Integer intermediateImportId = 10;
+    String datasetUuid = "datasetUuid";
+    StdDateFormat format = new StdDateFormat();
+    Date date = format.parse("2020-01-12T00:00");
+    IntermediateImport intermediateImport = new IntermediateImport(intermediateImportId, "Efficacy and Safety of Semaglutide", date, "Study in progress", "someDatasetUuid");
+    String updateContent = TestUtils.createJson(intermediateImport);
+    when(intermediateImportRepository.update(intermediateImport)).thenReturn(intermediateImport);
+
+    mockMvc.perform(
+            put("/users/" + userHash + "/datasets/" + datasetUuid + "/intermediateImport/" + intermediateImportId)
+                    .content(updateContent)
+                    .principal(user)
+                    .contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(status().isOk());
+
+    verify(intermediateImportRepository).update(intermediateImport);
+  }
+
+  @Test
+  public void testDeleteIntermediateImport() throws Exception {
+    Integer intermediateImportId = 10;
+    String datasetUuid = "datasetUuid";
+    StdDateFormat format = new StdDateFormat();
+    Date date = format.parse("2020-01-12T00:00");
+    IntermediateImport intermediateImport = new IntermediateImport(intermediateImportId, "Efficacy and Safety of Semaglutide", date, "Study in progress", "someDatasetUuid");
+    String updateContent = TestUtils.createJson(intermediateImport);
+
+    mockMvc.perform(
+      delete("/users/" + userHash + "/datasets/" + datasetUuid + "/intermediateImport/" + intermediateImportId)
+              .content(updateContent)
+              .principal(user)
+              .contentType(WebConstants.getApplicationJsonUtf8Value()))
+            .andExpect(status().isOk());
+    verify(intermediateImportRepository).delete(intermediateImportId);
+
+  }
+
+  @Test
   public void testUpdateJsonGraph() throws Exception {
     String updateContent = "updateContent";
     String datasetUuid = "datasetUuid";
@@ -303,6 +393,7 @@ public class GraphControllerTest {
 
     verify(datasetReadRepository).isOwner(datasetUri, user);
     verify(graphWriteRepository).updateGraph(Matchers.anyObject(), anyString(), any(InputStream.class), anyString(), anyString());
+    verify(graphService).jsonGraphInputStreamToTurtleInputStream(any(InputStream.class));
     verify(versionMappingRepository).getVersionMappingByDatasetUrl(datasetUri);
   }
 
@@ -332,6 +423,8 @@ public class GraphControllerTest {
             .andExpect(header().string(WebConstants.X_EVENT_SOURCE_VERSION, newVersion));
 
     verify(datasetReadRepository).isOwner(datasetUri, user);
+    verify(graphService).copy(targetDatasetUri, targetGraphUri, sourceGraphUri);
+    verify(graphService).buildGraphUri(graphUuid);
   }
 
 

@@ -5,10 +5,7 @@
     <li><a ui-sref="datasets({userUid: user.id})">{{user.firstName}} {{user.lastName}}</a></li>
     <li><a ui-sref="datasets({userUid: userUid})">Datasets</a></li>
     <li ng-if="!versionUuid"><a ui-sref="dataset({userUid: userUid, datasetUuid: datasetUuid})">{{dataset.title}}</a></li>
-    <li><a ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms</a></li>
-    <li class="current active">Epochs</li>
-    <li><a ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
-    <li><a ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
+    <li class="current active">Intermediate Import </li>
   </ul>
 
   <div class="grid-container">
@@ -20,10 +17,16 @@
           <ul class="side-nav">
             <li> <a ng-click="sideNavClick('intermediate-arm')" ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms </a></li>
             <li class="divider"></li>
+            
             <li class="current active">Epochs</li>
             <li class="divider"></li>
+            
             <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
             <li class="divider"></li>
+            
+            <li><a ng-click="sideNavClick('intermediate-designTable')" ui-sref="intermediate-designTable({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Study Design</a></li>
+            <li class="divider"></li>          
+
             <li> <a ng-click="sideNavClick('intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
             <li class="divider"></li>
           </ul>
@@ -32,6 +35,7 @@
 
       <div class="grid-container">
         <h1>Repair epochs</h1>
+        <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank"> {{::study.nctId}}</a></div>
         <div ng-if="epochs.length === 0">
           <h5>No epochs are defined. Please add epochs in your study.</h5>
         </div>

@@ -1,13 +1,15 @@
-package org.drugis.addis.interventions;
+package interventions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import org.drugis.addis.TestUtils;
 import org.drugis.addis.config.TestConfig;
+import org.drugis.addis.interventions.controller.InterventionController;
 import org.drugis.addis.interventions.controller.command.*;
 import org.drugis.addis.interventions.model.*;
 import org.drugis.addis.interventions.repository.InterventionRepository;
 import org.drugis.addis.interventions.service.InterventionService;
+import org.drugis.addis.projects.service.ProjectService;
 import org.drugis.addis.security.Account;
 import org.drugis.addis.security.repository.AccountRepository;
 import org.drugis.addis.trialverse.model.SemanticInterventionUriAndName;
@@ -15,7 +17,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -24,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -37,30 +43,33 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Created by daan on 3/5/14.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfig.class})
-@WebAppConfiguration
+@Configuration
+@EnableWebMvc
 public class InterventionControllerTest {
 
   private MockMvc mockMvc;
 
-  @Inject
+  @Mock
   private AccountRepository accountRepository;
 
-  @Inject
+  @Mock
   private InterventionRepository interventionRepository;
 
-  @Inject
+  @Mock
   private InterventionService interventionService;
 
-  @Autowired
-  private WebApplicationContext webApplicationContext;
+  @Mock
+  private ProjectService projectService;
+
+  @InjectMocks
+  private InterventionController interventionController;
 
   private Principal user;
 
@@ -69,15 +78,15 @@ public class InterventionControllerTest {
 
   @Before
   public void setUp() {
-    reset(accountRepository, interventionRepository, interventionService);
-    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    initMocks(this);
     user = mock(Principal.class);
     when(user.getName()).thenReturn("gert");
     when(accountRepository.findAccountByUsername("gert")).thenReturn(gert);
     when(accountRepository.getAccount(user)).thenReturn(gert);
+    mockMvc = MockMvcBuilders.standaloneSetup(interventionController).build();
   }
 
-  @After
+  @After // FIXME: more verifies
   public void tearDown() {
     verifyNoMoreInteractions(accountRepository, interventionRepository, interventionService);
   }

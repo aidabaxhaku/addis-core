@@ -4,53 +4,57 @@
     <li><a ui-sref="datasets({userUid: user.id})">{{user.firstName}} {{user.lastName}}</a></li>
     <li><a ui-sref="datasets({userUid: userUid})">Datasets</a></li>
     <li ng-if="!versionUuid"><a ui-sref="dataset({userUid: userUid, datasetUuid: datasetUuid})">{{dataset.title}}</a></li>
-    <li><a ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms</a></li>
-    <li><a ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
-    <li><a ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
-    <li class="current active">Measurement moments</li>
+    <li class="current active">Intermediate Import </li>
   </ul>
   <div class="grid-container">
-    <div class="grid-x nav-bar-spacer">
-      <div ng-hide="navSettings.isHidden"
-        class="cell large-2 medium-3 show-for-medium-up"
-        ng-class="{'compact-nav': navSettings.isCompact}">
-        <ul class="side-nav">
-          <li> <a ng-click="sideNavClick('intermediate-arm')" ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms </a></li>
-          <li class="divider"></li>
-          <li><a ng-click="sideNavClick('intermediate-epoch')" ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
-          <li class="divider"></li>
+    <div class="grid-x">
+      <div class="cell large-2 medium-3 show-for-medium-up"
+        role="navigation"
+        title="Categories">
+        <div class="align-left">
+          <ul class="side-nav">
+            <li> <a ng-click="sideNavClick('intermediate-arm')" ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms</a></li>
+            <li class="divider"></li>
 
-          <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
-          <li class="divider"></li>
+            <li><a ng-click="sideNavClick('intermediate-epoch')" ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
+            <li class="divider"></li>
 
-          <li class="current active">Measurement moments</li>
-        </ul>
+            <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
+            <li class="divider"></li>
+
+            <li><a ng-click="sideNavClick('intermediate-designTable')" ui-sref="intermediate-designTable({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Study Design</a></li>
+            <li class="divider"></li>
+
+            <li class="current active">Measurement moments</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cell large-10 medium-3 show-for-medium-up">
+        <h1> Repair measurement moments </h1>
+        <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank">This is {{::study.nctId}}</a></div>
+
+        <h2> Measurement moments </h2>
+        <h5> Please fix the measurement moments below!</h5>
+
+        <div class="panel callout primary clearfix"
+          ng-repeat="measurementMoment in measurementMoments">
+          {{measurementMoment.label}}
+          <a ng-click="editMeasurementMoment(measurementMoment)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
+          <a ng-click="mergeMeasurementMoment(measurementMoment)" title="merge"><i class="fa fa-code-fork fa-rotate-180 fa-2x fa-fw"></i> </a>
+          <a ng-click="deleteMeasurementMoment(measurementMoment)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
+        </div>
+
+        <button ng-click="previous()"
+          type="button"
+          class="button"> <i class="fa fa-backward"></i> Previous
+        </button>
+
+        <button ng-click="next()"
+          type="button"
+          class="button">Next <i class="fa fa-forward"></i>
+        </button>
+
       </div>
     </div>
-  </div>
-
-  <div class="grid-container">
-    <h1> Repair measurement moments </h1>
-    <h2> Measurement moments </h2>
-    <h5> Please fix the measurement moments below!</h5>
-    <div class="panel callout primary clearfix"
-      ng-repeat="measurementMoment in measurementMoments">
-      {{measurementMoment.label}}
-      <a ng-click="editMeasurementMoment(measurementMoment)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
-      <a ng-click="mergeMeasurementMoment(measurementMoment)" title="merge"><i class="fa fa-code-fork fa-rotate-180 fa-2x fa-fw"></i> </a>
-      <a ng-click="deleteMeasurementMoment(measurementMoment)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
-    </div>
-    <button ng-click="addMeasurementMoment()"
-      type="button"
-      class="button">Add <i class="fa fa-plus"></i>
-    </button>
-  </div>
-  <div class="grid-container">
-    <button ng-click="previous()"
-      type="button"
-      class="button"><i class="fa fa-backward"></i> Previous</button>
-    <button ng-click="next()"
-      type="button"
-      class="button"><i class="fa fa-forward"></i>Next</button>
   </div>
 </div>

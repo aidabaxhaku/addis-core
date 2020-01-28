@@ -5,6 +5,7 @@ define(['jquery'], function($) {
     '$stateParams',
     '$state',
     '$modal',
+    '$filter',
     'ActivityService',
     'GraphResource',
     'StudyService',
@@ -15,6 +16,7 @@ define(['jquery'], function($) {
     $stateParams,
     $state,
     $modal,
+    $filter,
     ActivityService,
     GraphResource,
     StudyService,
@@ -22,6 +24,7 @@ define(['jquery'], function($) {
   ) {
     //init
     $scope.activities = [];
+    $scope.study = {};
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
     $scope.item = {};
@@ -35,23 +38,37 @@ define(['jquery'], function($) {
 
     $scope.selectTab = selectTab;
 
-      if (!$scope.activetab) {
-        $scope.activetab = $state.current.name;
-      }
+    if (!$scope.activetab) {
+      $scope.activetab = $state.current.name;
+    }
 
-      function selectTab(tab) {
-        if ($state.current.name !== tab) {
-          $scope.activetab = tab;
-          $state.go(tab, {
-            userUid: $stateParams.userUid
-          });
-        }
+    function selectTab(tab) {
+      if ($state.current.name !== tab) {
+        $scope.activetab = tab;
+        $state.go(tab, {
+          userUid: $stateParams.userUid
+        });
       }
+    }
+
+    function fillView(study) {
+      $scope.studyUuid = $filter('stripFrontFilter')(study['@id'], 'http://trials.drugis.org/studies/');
+      $scope.study = {
+        id: $scope.studyUuid,
+        label: study.label,
+        comment: study.comment,
+      };
+      if (study.has_publication && study.has_publication.length === 1) {
+        $scope.study.nctId = study.has_publication[0].registration_id;
+        $scope.study.nctUri = study.has_publication[0].uri;
+      }
+    }
+
     function next() {
       if ($scope.activities.length > 0)
-        $state.go('intermediate-measurementMoment', $stateParams);
-     // console.log($stateParams)
-      else 
+        $state.go('intermediate-designTable', $stateParams);
+      // console.log($stateParams)
+      else
         $scope.alert = "*Please add activities.";
     }
 
@@ -110,29 +127,19 @@ define(['jquery'], function($) {
       console.log(activity)
     }
 
-    loadStudy();
-
     reloadStudyModel();
 
     function reloadStudyModel() {
+      StudyService.getStudy().then(function(study) {
+        fillView(study);
+      });
       ActivityService.queryItems().then(function(activities) {
         $scope.activities = activities;
 
         console.log('activities' + activities)
       });
     }
-
-    function loadStudy() {
-      StudyService.loadJson(getHeadGraph());
-    }
-
-    function getHeadGraph() {
-      return GraphResource.getJson({
-        userUid: $stateParams.userUid,
-        datasetUuid: $stateParams.datasetUuid,
-        graphUuid: $stateParams.studyGraphUuid
-      }).$promise;
-    }
+    
   };
   return dependencies.concat(IntermediateImportActivitiesController);
 });

@@ -1,23 +1,19 @@
 package org.drugis.addis.interventions.repository.impl;
 
 import com.google.common.collect.Sets;
-import org.drugis.addis.exception.MethodNotAllowedException;
 import org.drugis.addis.exception.ResourceDoesNotExistException;
 import org.drugis.addis.interventions.controller.command.AbstractInterventionCommand;
 import org.drugis.addis.interventions.model.AbstractIntervention;
 import org.drugis.addis.interventions.model.InvalidConstraintException;
 import org.drugis.addis.interventions.model.SingleIntervention;
 import org.drugis.addis.interventions.repository.InterventionRepository;
-import org.drugis.addis.projects.Project;
 import org.drugis.addis.security.Account;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

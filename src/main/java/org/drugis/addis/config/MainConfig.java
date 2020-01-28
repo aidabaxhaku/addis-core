@@ -89,7 +89,9 @@ import java.util.Properties;
     "org.drugis.addis.scaledUnits",
     "org.drugis.addis.subProblems",
     "org.drugis.addis.ordering",
-    "org.drugis.addis.workspaceSettings"
+    "org.drugis.addis.workspaceSettings",
+    "org.drugis.addis.intermediateImport"
+
 })
 @EnableCaching
 public class MainConfig {
@@ -250,7 +252,8 @@ public class MainConfig {
         "org.drugis.addis.scaledUnits",
         "org.drugis.addis.subProblems",
         "org.drugis.addis.ordering",
-        "org.drugis.addis.workspaceSettings"
+        "org.drugis.addis.workspaceSettings",
+        "org.drugis.addis.intermediateImport"
     );
     em.setDataSource(dataSource());
     em.setPersistenceUnitName("addisCore");

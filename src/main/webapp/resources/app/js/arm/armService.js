@@ -40,7 +40,7 @@ define(['lodash'], function(_) {
 
     function queryItems() {
       return StudyService.getStudy().then(function(study) {
-        return _.sortBy(study.has_arm.map(toFrontEnd), 'label');
+        return study.has_arm ? _.sortBy(study.has_arm.map(toFrontEnd), 'label') : [];
       });
     }
 

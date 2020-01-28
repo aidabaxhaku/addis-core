@@ -1,27 +1,39 @@
 'use strict';
-define(['jquery'], function($) {
+define([], function() {
   var dependencies = [
-    '$scope',
-    '$stateParams',
-    '$state',
+    '$q',
     '$modal',
+    '$scope',
+    '$state',
+    '$filter',
+    '$resource',
+    '$stateParams',
     'ArmService',
     'GroupService',
-    'GraphResource',
     'StudyService',
+    'ResultsService',
+    'DataModelService',
+    'GraphResource',
     'UserResource',
+    'IntermediateImportResource',
     'STUDY_CATEGORY_SETTINGS'
   ];
   var IntermediateImportArmsController = function(
-    $scope,
-    $stateParams,
-    $state,
+    $q,
     $modal,
+    $scope,
+    $state,
+    $filter,
+    $resource,
+    $stateParams,
     ArmService,
     GroupService,
-    GraphResource,
     StudyService,
+    ResultsService,
+    DataModelService,
+    GraphResource,
     UserResource,
+    IntermediateImportResource,
     STUDY_CATEGORY_SETTINGS
   ) {
 
@@ -29,16 +41,17 @@ define(['jquery'], function($) {
     $scope.arms = [];
     $scope.groups = [];
     $scope.measurementMoments = [];
+    $scope.study = {};
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
     $scope.categorySettings = STUDY_CATEGORY_SETTINGS;
     $scope.isEditingAllowed = true;
     $scope.alert = "";
-    $scope.measuredAtMoments = [];
-    $scope.toggleSidenav = buildToggler('closeEventsDisabled');
+    $scope.results = [];
+    $scope.noData = "";
 
     //functions   
-    $scope.nextEpoch = nextEpoch;
+    $scope.next = next;
     $scope.editGroup = editGroup;
     $scope.editArm = editArm;
     $scope.addGroup = addGroup;
@@ -51,34 +64,58 @@ define(['jquery'], function($) {
     $scope.mergeArm = mergeArm;
     $scope.previous = previous;
 
-    loadStudy();
-
     reloadStudyModel();
 
-    function buildToggler(componentId) {
-      return function() {
-        $mdSidenav(componentId).toggle();
-      };
-    }
-
     function reloadStudyModel() {
+      StudyService.getStudy().then(function(study) {
+        fillView(study);
+      });
       ArmService.queryItems().then(function(arms) {
         $scope.arms = arms;
-
-        console.log(arms)
+       return arms.map(function(arm) {
+         addResultsToArm(arm);
+       });
       });
       GroupService.queryItems().then(function(groups) {
         $scope.groups = groups;
-
-        console.log(groups)
+        return groups.map(function(group) {
+          addResultsToGroup(group);
+        });
       });
+    }
+
+    //To get the NCTID of the current study
+    function fillView(study) {
+      $scope.studyUuid = $filter('stripFrontFilter')(study['@id'], 'http://trials.drugis.org/studies/');
+      $scope.study = {
+        id: $scope.studyUuid,
+        label: study.label,
+        comment: study.comment,
+      };
+      if (study.has_publication && study.has_publication.length === 1) {
+        $scope.study.nctId = study.has_publication[0].registration_id;
+        $scope.study.nctUri = study.has_publication[0].uri;
+      }
+    }
+
+    function addResultsToGroup(group) {
+      return ResultsService.queryResultsByGroup(group.groupUri).then(function(results) {
+        group.results = results; 
+        console.log('Results:' + results);
+      });
+    }
+
+    function addResultsToArm(arm) {
+      return ResultsService.queryResultsByGroup(arm.armUri).then(function(results) {
+        arm.results = results;
+      })
     }
 
     function previous() {
       $state.go('dataset', $stateParams);
     }
 
-    function nextEpoch() {
+    function next() {
       if ($scope.arms.length > 0)
         $state.go('intermediate-epoch', $stateParams);
       //console.log($stateParams)
@@ -135,6 +172,12 @@ define(['jquery'], function($) {
             return group;
           }
         }
+      });
+    }
+
+    function editArm(arm) {
+      return ArmService.editItem(arm).then(function() {
+        reloadStudyModel();
       });
     }
 
@@ -218,18 +261,6 @@ define(['jquery'], function($) {
           }
         }
       });
-    }
-
-    function loadStudy() {
-      StudyService.loadJson(getHeadGraph());
-    }
-
-    function getHeadGraph() {
-      return GraphResource.getJson({
-        userUid: $stateParams.userUid,
-        datasetUuid: $stateParams.datasetUuid,
-        graphUuid: $stateParams.studyGraphUuid
-      }).$promise;
     }
 
   };

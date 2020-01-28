@@ -3,9 +3,13 @@ package org.drugis.trialverse.graph.controller;
 import org.apache.http.Header;
 import org.apache.jena.riot.RDFLanguages;
 import org.drugis.addis.base.AbstractAddisCoreController;
-import org.drugis.addis.security.repository.AccountRepository;
+import org.drugis.addis.exception.ResourceDoesNotExistException;
 import org.drugis.addis.importer.service.ClinicalTrialsImportService;
 import org.drugis.addis.importer.service.impl.ClinicalTrialsImportError;
+import org.drugis.addis.intermediateImport.IntermediateImport;
+import org.drugis.addis.intermediateImport.IntermediateImportCommand;
+import org.drugis.addis.intermediateImport.repository.IntermediateImportRepository;
+import org.drugis.addis.security.repository.AccountRepository;
 import org.drugis.addis.util.WebConstants;
 import org.drugis.trialverse.dataset.exception.RevisionNotFoundException;
 import org.drugis.trialverse.dataset.model.VersionMapping;
@@ -14,6 +18,7 @@ import org.drugis.trialverse.dataset.repository.DatasetReadRepository;
 import org.drugis.trialverse.dataset.repository.VersionMappingRepository;
 import org.drugis.trialverse.dataset.service.HistoryService;
 import org.drugis.trialverse.exception.MethodNotAllowedException;
+import org.drugis.trialverse.graph.controller.model.IntermediateImportMessage;
 import org.drugis.trialverse.graph.exception.DeleteGraphException;
 import org.drugis.trialverse.graph.exception.ReadGraphException;
 import org.drugis.trialverse.graph.exception.UpdateGraphException;
@@ -27,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -68,6 +74,8 @@ public class GraphController extends AbstractAddisCoreController {
   @Inject
   private ClinicalTrialsImportService clinicalTrialsImportService;
 
+  @Inject
+  private IntermediateImportRepository intermediateImportRepository;
   @Inject
   private HistoryService historyService;
 
@@ -200,6 +208,53 @@ public class GraphController extends AbstractAddisCoreController {
     } else {
       throw new MethodNotAllowedException();
     }
+  }
+
+  @Transactional
+  @RequestMapping(value = "/intermediateImport",
+          method = RequestMethod.POST)
+  @ResponseBody
+  public IntermediateImportMessage createIntermediateImport(
+          HttpServletResponse response,
+          Principal currentUser,
+          @PathVariable String datasetUuid,
+          @RequestBody IntermediateImportCommand intermediateImportCommand
+  ) throws MethodNotAllowedException, ClinicalTrialsImportError, URISyntaxException, IOException {
+    logger.trace("intermediate import");
+    URI datasetUri = new URI(Namespaces.DATASET_NAMESPACE + datasetUuid);
+    if (datasetReadRepository.isOwner(datasetUri, currentUser)) {
+      Integer intermediateImportId = clinicalTrialsImportService.intermediateImport(intermediateImportCommand.getNctId(), datasetUuid, intermediateImportCommand.getTitle());
+      response.setStatus(HttpStatus.CREATED.value());
+      return new IntermediateImportMessage(intermediateImportId);
+    } else {
+      throw new MethodNotAllowedException();
+    }
+  }
+
+  @RequestMapping(value = "intermediateImport/{intermediateImportId}",
+          method = RequestMethod.GET)
+  @ResponseBody
+  public IntermediateImport getIntermediateImport(@PathVariable Integer intermediateImportId) throws Exception {
+    return intermediateImportRepository.get(intermediateImportId);
+  }
+
+  @RequestMapping(value = "intermediateImport/{intermediateImportId}",
+          method = RequestMethod.PUT)
+  public IntermediateImport updateIntermediateImport(
+          @RequestBody IntermediateImport intermediateImport
+          ) {
+      return intermediateImportRepository.update(intermediateImport);
+  }
+
+  @RequestMapping(value = "intermediateImport/{intermediateImportId}",
+        method = RequestMethod.DELETE)
+  public void deleteIntermediateImport(
+          HttpServletResponse response,
+          @RequestBody IntermediateImport intermediateImport) throws ResourceDoesNotExistException {
+    Integer intermediateImportId = intermediateImport.getId();
+    response.setStatus(HttpStatus.OK.value());
+    intermediateImportRepository.delete(intermediateImportId);
+
   }
 
   @RequestMapping(value = "/graphs/import-eudract",

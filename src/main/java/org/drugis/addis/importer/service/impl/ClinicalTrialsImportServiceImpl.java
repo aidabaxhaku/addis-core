@@ -2,6 +2,7 @@ package org.drugis.addis.importer.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -11,8 +12,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
-import org.drugis.addis.patavitask.repository.impl.PataviTaskRepositoryImpl;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFLanguages;
 import org.drugis.addis.importer.service.ClinicalTrialsImportService;
+import org.drugis.addis.intermediateImport.IntermediateImport;
+import org.drugis.addis.intermediateImport.repository.IntermediateImportRepository;
+import org.drugis.addis.patavitask.repository.impl.PataviTaskRepositoryImpl;
 import org.drugis.addis.util.WebConstants;
 import org.drugis.trialverse.graph.exception.UpdateGraphException;
 import org.drugis.trialverse.graph.repository.GraphWriteRepository;
@@ -24,7 +31,9 @@ import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URI;
+import java.util.Date;
 
 @Service
 public class ClinicalTrialsImportServiceImpl implements ClinicalTrialsImportService {
@@ -38,6 +47,9 @@ public class ClinicalTrialsImportServiceImpl implements ClinicalTrialsImportServ
 
   @Inject
   private GraphWriteRepository graphWriteRepository;
+
+  @Inject
+  private IntermediateImportRepository intermediateImportRepository;
 
   @Override
   public JsonNode fetchInfo(String nctId) throws ClinicalTrialsImportError {
@@ -81,7 +93,7 @@ public class ClinicalTrialsImportServiceImpl implements ClinicalTrialsImportServ
         throw new ClinicalTrialsImportError("could not import study, errorCode: " + responseStatusCode + " reason:" + response.getStatusLine().getReasonPhrase());
       }
     } catch (IOException e) {
-      throw new ClinicalTrialsImportError("could get study data, " + e.toString());
+      throw new ClinicalTrialsImportError("could not get study data, " + e.toString());
     } catch (UpdateGraphException e) {
       throw new ClinicalTrialsImportError("could not update graph, " + e.toString());
     }
@@ -107,4 +119,29 @@ public class ClinicalTrialsImportServiceImpl implements ClinicalTrialsImportServ
       throw new ClinicalTrialsImportError("import eudract failed");
     }
   }
+
+  @Override
+  public Integer intermediateImport(String nctId, String datasetUuid, String title) throws IOException {
+
+    HttpGet httpGet = new HttpGet(importerServiceLocation + "/" + nctId + "/rdf");
+    try (CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet)) {
+      int responseStatusCode = response.getStatusLine().getStatusCode();
+      if (responseStatusCode == HttpStatus.SC_OK) {
+        InputStream content = response.getEntity().getContent();
+        Model model = ModelFactory.createDefaultModel();
+        model.read(content, "http://example.com", RDFLanguages.strLangTurtle);
+
+        StringWriter writer = new StringWriter();
+        RDFDataMgr.write(writer, model , RDFLanguages.JSONLD);
+        writer.close();
+        IntermediateImport intermediateImport =  intermediateImportRepository.create(title, new Date(), writer.toString(), datasetUuid);
+        return intermediateImport.getId();
+
+      } else {
+        throw new ClinicalTrialsImportError("could not import study, errorCode: " + responseStatusCode + " reason:" + response.getStatusLine().getReasonPhrase());
+      }
+    }
+
+  }
+
 }

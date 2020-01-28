@@ -5,6 +5,7 @@ define(['jquery'], function($) {
     '$stateParams',
     '$state',
     '$modal',
+    '$filter',
     'MeasurementMomentService',
     'GraphResource',
     'StudyService',
@@ -17,6 +18,7 @@ define(['jquery'], function($) {
     $stateParams,
     $state,
     $modal,
+    $filter,
     MeasurementMomentService,
     GraphResource,
     StudyService,
@@ -26,6 +28,7 @@ define(['jquery'], function($) {
   ) {
     //init
     $scope.measurementMoments = [];
+    $scope.study = {};
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
     $scope.alert = "";
@@ -46,7 +49,7 @@ define(['jquery'], function($) {
       });
     }
 
-    function previous(){
+    function previous() {
       $state.go('intermediate-activity', $stateParams);
     }
 
@@ -113,27 +116,29 @@ define(['jquery'], function($) {
       });
     }
 
-    loadStudy();
-
     reloadStudyModel();
 
     function reloadStudyModel() {
+      StudyService.getStudy().then(function(study) {
+        fillView(study);
+      });
       MeasurementMomentService.queryItems().then(function(measurementMoments) {
         $scope.measurementMoments = measurementMoments;
         console.log('measurementMoments ' + measurementMoments)
       });
     }
 
-    function loadStudy() {
-      StudyService.loadJson(getHeadGraph());
-    }
-
-    function getHeadGraph() {
-      return GraphResource.getJson({
-        userUid: $stateParams.userUid,
-        datasetUuid: $stateParams.datasetUuid,
-        graphUuid: $stateParams.studyGraphUuid
-      }).$promise;
+    function fillView(study) {
+      $scope.studyUuid = $filter('stripFrontFilter')(study['@id'], 'http://trials.drugis.org/studies/');
+      $scope.study = {
+        id: $scope.studyUuid,
+        label: study.label,
+        comment: study.comment,
+      };
+      if (study.has_publication && study.has_publication.length === 1) {
+        $scope.study.nctId = study.has_publication[0].registration_id;
+        $scope.study.nctUri = study.has_publication[0].uri;
+      }
     }
   };
   return dependencies.concat(IntermediateImportMeasurementMomentsController);
