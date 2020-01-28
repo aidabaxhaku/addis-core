@@ -26,7 +26,6 @@ import org.drugis.addis.projects.repository.ProjectRepository;
 import org.drugis.addis.security.Account;
 import org.drugis.addis.trialverse.model.SemanticInterventionUriAndName;
 import org.drugis.addis.trialverse.model.SemanticVariable;
-import org.drugis.addis.trialverse.model.trialdata.TrialDataArm;
 import org.drugis.addis.trialverse.model.trialdata.TrialDataStudy;
 import org.drugis.addis.trialverse.service.impl.ReadValueException;
 import org.drugis.addis.util.WebConstants;
@@ -43,17 +42,11 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 
-/**
- * Created by daan on 3/21/14.
- */
 public class ProblemServiceTest {
 
   @Mock
@@ -75,13 +68,10 @@ public class ProblemServiceTest {
   private ProjectRepository projectRepository;
 
   @Mock
-  private LinkService linkService;
-
-  @Mock
   private SingleStudyBenefitRiskService singleStudyBenefitRiskService;
 
   @Mock
-  private NetworkBenefitRiskPerformanceEntryBuilder networkBenefitRiskPerformanceEntryBuilder;
+  private NetworkBenefitRiskService networkBenefitRiskService;
 
   @InjectMocks
   private ProblemService problemService;
@@ -102,16 +92,12 @@ public class ProblemServiceTest {
   private final Integer fluoxInterventionId = 401;
   private final SingleIntervention fluoxIntervention = new SimpleIntervention(fluoxInterventionId, project.getId(),
           "fluoxetine", "motivation", fluoxConcept.getUri(), fluoxConcept.getLabel());
-  private final URI paroxConceptUri = URI.create("paroxConceptUri");
-  private final SemanticInterventionUriAndName paroxConcept = new SemanticInterventionUriAndName(paroxConceptUri, "parox concept");
-  private final Integer paroxInterventionId = 402;
-  private final SingleIntervention paroxIntervention = new SimpleIntervention(paroxInterventionId, project.getId(),
-          "paroxetine", "motivation", paroxConcept.getUri(), paroxConcept.getLabel());
   private final URI sertraConceptUri = URI.create("sertraConceptUri");
   private final SemanticInterventionUriAndName sertraConcept = new SemanticInterventionUriAndName(sertraConceptUri, "sertra concept");
   private final Integer sertraInterventionId = 403;
   private final SingleIntervention sertraIntervention = new SimpleIntervention(sertraInterventionId, project.getId(),
           "sertraline", "motivation", sertraConcept.getUri(), sertraConcept.getLabel());
+  private String studyToOmit = "studyToOmit";
 
   // empty constructor so exception from field initialisation can go somewhere
   public ProblemServiceTest() throws Exception {
@@ -126,18 +112,20 @@ public class ProblemServiceTest {
 
   @After
   public void cleanUp() {
-    verifyNoMoreInteractions(analysisRepository, projectRepository,
-            modelService, singleStudyBenefitRiskService,
-            networkMetaAnalysisService, linkService,
-            networkBenefitRiskPerformanceEntryBuilder
+    verifyNoMoreInteractions(
+            analysisRepository,
+            projectRepository,
+            modelService,
+            singleStudyBenefitRiskService,
+            networkMetaAnalysisService,
+            networkBenefitRiskService
     );
   }
 
   @Test
   public void testGetProblemSingleStudyBenefitRisk() throws Exception, ProblemCreationException {
     Set<InterventionInclusion> interventionInclusions = buildInterventionInclusions();
-    BenefitRiskAnalysis analysis =
-            new BenefitRiskAnalysis(analysisId, projectId, "single study analysis", interventionInclusions);
+    BenefitRiskAnalysis analysis = new BenefitRiskAnalysis(analysisId, projectId, "single study analysis", interventionInclusions);
     when(analysisRepository.get(analysisId)).thenReturn(analysis);
 
     Integer secondOutcomeId = 1337;
@@ -210,7 +198,7 @@ public class ProblemServiceTest {
     );
   }
 
-    private Map<String, AlternativeEntry> getAlternativesMock() {
+  private Map<String, AlternativeEntry> getAlternativesMock() {
     Map<String, AlternativeEntry> alternativesMock = new HashMap<>();
     alternativesMock.put(String.valueOf(fluoxInterventionId), mock(AlternativeEntry.class));
     alternativesMock.put(String.valueOf(sertraInterventionId), mock(AlternativeEntry.class));
@@ -226,7 +214,7 @@ public class ProblemServiceTest {
   private List<BenefitRiskStudyOutcomeInclusion> getBenefitRiskStudyOutcomeInclusions(Integer secondOutcomeId, URI studyUri) {
     BenefitRiskStudyOutcomeInclusion outcomeInclusion = new BenefitRiskStudyOutcomeInclusion(analysisId, outcome.getId(), studyUri);
     BenefitRiskStudyOutcomeInclusion secondOutcomeInclusion = new BenefitRiskStudyOutcomeInclusion(analysisId, secondOutcomeId, studyUri);
-    return Arrays.asList(secondOutcomeInclusion,outcomeInclusion);
+    return Arrays.asList(secondOutcomeInclusion, outcomeInclusion);
   }
 
   private Set<InterventionInclusion> buildInterventionInclusions() {
@@ -237,8 +225,6 @@ public class ProblemServiceTest {
 
   @Test
   public void testGetProblemNMA() throws URISyntaxException, ReadValueException, ResourceDoesNotExistException, ProblemCreationException, IOException {
-
-    // analysis
     NetworkMetaAnalysis analysis = new NetworkMetaAnalysis(analysisId, project.getId(), "nma title", outcome);
     when(analysisRepository.get(analysisId)).thenReturn(analysis);
 
@@ -256,18 +242,16 @@ public class ProblemServiceTest {
     when(analysisService.buildEvidenceTable(project.getId(), analysis.getId())).thenReturn(studies);
     when(networkMetaAnalysisService.buildAbsolutePerformanceEntries(analysis, studies)).thenReturn(entries);
     when(networkMetaAnalysisService.buildRelativeEffectData(analysis, studies)).thenReturn(new RelativeEffectData());
-
-    // remove studies without entries from final list
     when(networkMetaAnalysisService.getStudiesWithEntries(studies, entries)).thenReturn(studiesWithEntries);
-
-    // add covariate values to problem
     when(networkMetaAnalysisService.getStudyLevelCovariates(project, analysis, studiesWithEntries)).thenReturn(studyLevelCovariates);
 
-    // --------------- execute ---------------- //
     final AbstractProblem result = problemService.getProblem(project.getId(), analysis.getId());
-    // --------------- execute ---------------- //
 
-    NetworkMetaAnalysisProblem expectedResult = new NetworkMetaAnalysisProblem(entries, treatments, studyLevelCovariates);
+    NetworkMetaAnalysisProblem expectedResult = new NetworkMetaAnalysisProblem(
+            entries,
+            treatments,
+            studyLevelCovariates
+    );
     assertEquals(expectedResult, result);
 
     verify(projectRepository).get(projectId);
@@ -282,104 +266,76 @@ public class ProblemServiceTest {
 
   @Test
   public void testGetProblemNMABR() throws Exception, ProblemCreationException {
-
-    URI version = URI.create("http://versions.com/version");
-    Integer projectId = 1;
-    Integer analysisId = 2;
-    String title = "title";
-    Project project = mock(Project.class);
-    String namespaceUuid = "UUID 1";
-
-    Set<InterventionInclusion> interventionInclusions = buildInterventionInclusions();
-
-    Set<Integer> outcomeIds = singleton(outcome.getId());
-
-    BenefitRiskAnalysis analysis = new BenefitRiskAnalysis(analysisId, projectId, title, interventionInclusions);
-    Integer nmaId = 3;
-    Integer modelId = 15;
-    BenefitRiskNMAOutcomeInclusion nmaInclusion = new BenefitRiskNMAOutcomeInclusion(analysisId, outcome.getId(), nmaId, modelId);
-    String baseline = "baseline";
-    nmaInclusion.setBaseline(baseline);
-    int notIncludedModelId = 823;
-    BenefitRiskNMAOutcomeInclusion nmaInclusionNoBaseline = new BenefitRiskNMAOutcomeInclusion(analysisId, outcome.getId(), nmaId, notIncludedModelId);
-    BenefitRiskNMAOutcomeInclusion nmaInclusionNoModel = new BenefitRiskNMAOutcomeInclusion(analysisId, outcome.getId(), nmaId, null);
-    analysis.setBenefitRiskNMAOutcomeInclusions(Arrays.asList(nmaInclusion, nmaInclusionNoBaseline, nmaInclusionNoModel));
-
-    Model model = mock(Model.class);
-    Set<Integer> modelIds = newHashSet(modelId, notIncludedModelId);
-
-    Set<AbstractIntervention> interventions = newHashSet(fluoxIntervention, paroxIntervention);
-
+    BenefitRiskAnalysis analysis = mock(BenefitRiskAnalysis.class);
+    Integer outcomeId1 = 1;
+    Integer nmaId1 = 10;
+    Integer modelId1 = 100;
+    Model model1 = mock(Model.class);
+    BenefitRiskNMAOutcomeInclusion outcomeInclusion1 = new BenefitRiskNMAOutcomeInclusion(analysisId, outcomeId1, nmaId1, modelId1);
+    List<BenefitRiskNMAOutcomeInclusion> outcomeInclusions = Collections.singletonList(outcomeInclusion1);
+    Set<Integer> outcomeIds = new HashSet<>(Collections.singletonList(outcomeId1));
+    Outcome outcome1 = mock(Outcome.class);
+    List<Outcome> outcomes = Collections.singletonList(outcome1);
+    AbstractIntervention intervention1 = mock(AbstractIntervention.class);
+    AbstractIntervention intervention2 = mock(AbstractIntervention.class);
+    Set<AbstractIntervention> includedInterventions = new HashSet<>(Arrays.asList(intervention1, intervention2));
+    Set<Integer> modelIds = new HashSet<>(Collections.singletonList(modelId1));
+    List<Model> models = Collections.singletonList(model1);
+    Collection<Model> modelsSet = Sets.newHashSet(models);
     Map<Integer, JsonNode> resultsByModelId = new HashMap<>();
-    resultsByModelId.put(modelId, mock(JsonNode.class));
-
-    URI modelSourceLink = URI.create("modelSourceLink");
-
-    NMAInclusionWithResults inclusionWithResults = new NMAInclusionWithResults(outcome, model,
-            resultsByModelId.get(modelId), interventions, baseline);
+    BenefitRiskProblem networkProblem = mock(BenefitRiskProblem.class);
     Map<URI, CriterionEntry> criteria = new HashMap<>();
-    CriterionEntry criterionEntry = mock(CriterionEntry.class);
-    DataSourceEntry dataSourceEntry = new DataSourceEntry("1", "source", modelSourceLink);
-    criteria.put(outcome.getSemanticOutcomeUri(), criterionEntry);
-
     Map<String, AlternativeEntry> alternatives = new HashMap<>();
-    alternatives.put(fluoxConceptUri.toString(), mock(AlternativeEntry.class));
-    AbstractMeasurementEntry measurementEntry = mock(AbstractMeasurementEntry.class);
+    List<AbstractMeasurementEntry> performanceTable = Collections.emptyList();
 
-    when(project.getId()).thenReturn(projectId);
-    when(project.getNamespaceUid()).thenReturn(namespaceUuid);
-    when(project.getDatasetVersion()).thenReturn(version);
-    when(project.getOwner()).thenReturn(owner);
-    when(model.getId()).thenReturn(modelId);
-    when(criterionEntry.getDataSources()).thenReturn(singletonList(dataSourceEntry));
-    when(outcomeRepository.get(projectId, outcomeIds)).thenReturn(singletonList(outcome));
-    when(networkMetaAnalysisService.getPataviResultsByModelId(Sets.newHashSet(model))).thenReturn(resultsByModelId);
     when(projectRepository.get(projectId)).thenReturn(project);
     when(analysisRepository.get(analysisId)).thenReturn(analysis);
-    when(modelService.get(modelIds)).thenReturn(singletonList(model));
-    when(analysisService.getIncludedInterventions(analysis)).thenReturn(interventions);
-    when(linkService.getModelSourceLink(project, model)).thenReturn(modelSourceLink);
-    when(networkMetaAnalysisService.buildCriteriaForInclusion(inclusionWithResults, modelSourceLink)).thenReturn(criteria);
-    when(networkMetaAnalysisService.buildAlternativesForInclusion(inclusionWithResults)).thenReturn(alternatives);
-    when(networkBenefitRiskPerformanceEntryBuilder.build(inclusionWithResults, dataSourceEntry)).thenReturn(measurementEntry);
+    when(analysis.getBenefitRiskNMAOutcomeInclusions()).thenReturn(outcomeInclusions);
+    when(analysis.getBenefitRiskStudyOutcomeInclusions()).thenReturn(Collections.emptyList());
+    when(outcomeRepository.get(projectId, outcomeIds)).thenReturn(outcomes);
+    when(outcome1.getId()).thenReturn(outcomeId1);
+    when(analysisService.getIncludedInterventions(analysis)).thenReturn(includedInterventions);
+    when(modelService.get(modelIds)).thenReturn(models);
+    when(model1.getId()).thenReturn(modelId1);
+    when(networkMetaAnalysisService.getPataviResultsByModelId(modelsSet)).thenReturn(resultsByModelId);
+    when(networkBenefitRiskService.hasBaseline(any(), any(), any())).thenReturn(true);
+    when(networkBenefitRiskService.hasResults(any(), any())).thenReturn(true);
+    when(networkBenefitRiskService.getNmaInclusionWithResults(any(), any(), any(), any(), any())).thenReturn(null);
+    when(networkBenefitRiskService.getNetworkProblem(any(), any())).thenReturn(networkProblem);
+    when(networkProblem.getCriteria()).thenReturn(criteria);
+    when(networkProblem.getAlternatives()).thenReturn(alternatives);
+    when(networkProblem.getPerformanceTable()).thenReturn(performanceTable);
 
-    //execute
     BenefitRiskProblem result = (BenefitRiskProblem) problemService.getProblem(projectId, analysisId);
 
-    BenefitRiskProblem expectedResult = new BenefitRiskProblem(WebConstants.SCHEMA_VERSION, criteria, alternatives, singletonList(measurementEntry));
+    BenefitRiskProblem expectedResult = new BenefitRiskProblem(
+            WebConstants.SCHEMA_VERSION,
+            criteria,
+            alternatives,
+            performanceTable
+    );
     assertEquals(expectedResult, result);
 
     verify(projectRepository).get(projectId);
     verify(analysisRepository).get(analysisId);
-    verify(modelService).get(modelIds);
+    verify(outcomeRepository).get(projectId, outcomeIds);
     verify(analysisService).getIncludedInterventions(analysis);
-    verify(linkService).getModelSourceLink(project, model);
-    verify(networkMetaAnalysisService).getPataviResultsByModelId(Sets.newHashSet(model));
-    verify(networkMetaAnalysisService).buildCriteriaForInclusion(inclusionWithResults, modelSourceLink);
-    verify(networkMetaAnalysisService).buildAlternativesForInclusion(inclusionWithResults);
-    verify(networkBenefitRiskPerformanceEntryBuilder).build(inclusionWithResults, dataSourceEntry);
-
+    verify(modelService).get(modelIds);
+    verify(networkMetaAnalysisService).getPataviResultsByModelId(modelsSet);
+    verify(networkBenefitRiskService).hasBaseline(any(), any(), any());
+    verify(networkBenefitRiskService).hasResults(any(), any());
+    verify(networkBenefitRiskService).getNmaInclusionWithResults(any(), any(), any(), any(), any());
+    verify(networkBenefitRiskService).getNetworkProblem(any(), any());
   }
 
   @Test
   public void applyModelSettingsSensitivity() throws InvalidModelException {
-    String studyToOmit = "studyToOmit";
     String studyToLeave = "studyToLeave";
     AbstractProblemEntry toOmit1 = new AbsoluteDichotomousProblemEntry(studyToOmit, 1, 1, 1);
     AbstractProblemEntry toOmit2 = new AbsoluteDichotomousProblemEntry(studyToOmit, 2, 2, 2);
     AbstractProblemEntry toLeave = new AbsoluteDichotomousProblemEntry(studyToLeave, 3, 3, 3);
     List<AbstractProblemEntry> entries = Arrays.asList(toOmit1, toOmit2, toLeave);
-    List<TreatmentEntry> treatments = Collections.emptyList();
-    Map<String, Map<String, Double>> covariates = Collections.emptyMap();
-    NetworkMetaAnalysisProblem problem = new NetworkMetaAnalysisProblem(entries, treatments, covariates);
-    JSONObject sensitivity = new JSONObject();
-    sensitivity.put("omittedStudy", studyToOmit);
-    Model model = new Model.ModelBuilder(1, "model")
-            .link(Model.LINK_IDENTITY)
-            .modelType(Model.NETWORK_MODEL_TYPE)
-            .sensitivity(sensitivity)
-            .build();
-    NetworkMetaAnalysisProblem result = problemService.applyModelSettings(problem, model);
+    NetworkMetaAnalysisProblem result = getNetworkMetaAnalysisProblem(studyToOmit, entries);
     assertEquals(1, result.getEntries().size());
     assertFalse(result.getEntries().contains(toOmit1));
     assertFalse(result.getEntries().contains(toOmit2));
@@ -388,10 +344,17 @@ public class ProblemServiceTest {
 
   @Test
   public void applyModelSettingsNoSensitivity() throws InvalidModelException {
-    String studyToOmit = "studyToOmit";
     AbstractProblemEntry entry1 = new AbsoluteDichotomousProblemEntry(studyToOmit, 1, 1, 1);
     AbstractProblemEntry entry2 = new AbsoluteDichotomousProblemEntry(studyToOmit, 2, 2, 2);
     List<AbstractProblemEntry> entries = Arrays.asList(entry1, entry2);
+    NetworkMetaAnalysisProblem result = getNetworkMetaAnalysisProblem(studyToOmit, entries);
+    assertEquals(Collections.emptyList(), result.getEntries());
+  }
+
+  private NetworkMetaAnalysisProblem getNetworkMetaAnalysisProblem(
+          String studyToOmit,
+          List<AbstractProblemEntry> entries
+  ) throws InvalidModelException {
     List<TreatmentEntry> treatments = Collections.emptyList();
     Map<String, Map<String, Double>> covariates = Collections.emptyMap();
     NetworkMetaAnalysisProblem problem = new NetworkMetaAnalysisProblem(entries, treatments, covariates);
@@ -402,8 +365,7 @@ public class ProblemServiceTest {
             .modelType(Model.NETWORK_MODEL_TYPE)
             .sensitivity(sensitivity)
             .build();
-    NetworkMetaAnalysisProblem result = problemService.applyModelSettings(problem, model);
-    assertEquals(Collections.emptyList(), result.getEntries());
+    return problemService.applyModelSettings(problem, model);
   }
 
 }

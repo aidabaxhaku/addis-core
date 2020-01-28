@@ -20,6 +20,7 @@ define([], function() {
   ) {
     if (currentAnalysis.problem.schemaVersion !== currentSchemaVersion) {
       $scope.workspace = SchemaService.updateWorkspaceToCurrentSchema(currentAnalysis);
+      SchemaService.validateProblem($scope.workspace.problem);
     } else {
       $scope.workspace = currentAnalysis;
     }
@@ -27,7 +28,7 @@ define([], function() {
     $scope.project = currentProject;
     $scope.editMode = {};
     UserService.isLoginUserId(currentProject.owner.id).then(function(isLoginUser) {
-      $scope.editMode.isUserOwner = isLoginUser;
+      $scope.editMode.canEdit = isLoginUser;
     });
 
     getWorkspaceSettings();
@@ -35,7 +36,7 @@ define([], function() {
     
     function getWorkspaceSettings() {
       $scope.toggledColumns = WorkspaceSettingsService.getToggledColumns();
-      $scope.workspaceSettings = WorkspaceSettingsService.getWorkspaceSettings();
+      $scope.workspaceSettings = WorkspaceSettingsService.setWorkspaceSettings($scope.workspace.problem.performanceTable);
     }
 
   };
