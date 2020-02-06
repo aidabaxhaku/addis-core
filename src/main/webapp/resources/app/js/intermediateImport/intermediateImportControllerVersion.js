@@ -10,8 +10,7 @@ define(['jquery'], function($) {
     'EpochService',
     'ActivityService',
     'MeasurementMomentService',
-    'GraphResource',
-    'STUDY_CATEGORY_SETTINGS'
+    'GraphResource'
   ];
   var IntermediateImportController = function(
     $scope,
@@ -23,8 +22,7 @@ define(['jquery'], function($) {
     EpochService,
     ActivityService,
     MeasurementMomentService,
-    GraphResource,
-
+    GraphResource
   ) {
     //functions
     $scope.next = next;

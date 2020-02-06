@@ -1,16 +1,13 @@
 'use strict';
-define(['jquery'], function($) {
+define(['lodash'], function(_) {
   var dependencies = [
     '$scope',
     '$stateParams',
     '$state',
     '$modal',
     '$filter',
-    'EpochService',
-    'GraphResource',
-    'StudyService',
-    'UserResource',
-    'DurationService'
+    'EpochService'
+
   ];
   var IntermediateImportEpochsController = function(
     $scope,
@@ -18,46 +15,53 @@ define(['jquery'], function($) {
     $state,
     $modal,
     $filter,
-    EpochService,
-    GraphResource,
-    StudyService,
-    UserResource,
-    DurationService
+    EpochService
   ) {
 
     //init
-    $scope.epochs = [];
-    $scope.study = {};
-    $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
-    $scope.alert = "";
-    $scope.screening = {
-      duration: "PT0S",
-      label: "Screening"
-    }
+    $scope.alert = '';
+
+    var durationPeriod = 'PT0S';
+    // var durationMainPhase = {}
+
+    $scope.suggestedEpochs = [{
+      duration: durationPeriod,
+      label: 'Screening'
+    }, {
+      duration: durationPeriod,
+      label: 'Randomization'
+    }, {
+      duration: durationPeriod,
+      label: 'Washout'
+    }];
+
     //functions    
     $scope.nextActivity = nextActivity;
     $scope.previous = previous;
     $scope.addEpoch = addEpoch;
     $scope.editEpoch = editEpoch;
     $scope.deleteEpoch = deleteEpoch;
-    $scope.isValidDuration = DurationService.isValidDuration;
-
+    $scope.accept = accept;
+    $scope.reject = reject;
 
     reloadStudyModel();
 
     function nextActivity() {
-      if ($scope.epochs.length > 0)
+      if ($scope.epochs.length > 0) {
         $state.go('intermediate-activity', $stateParams);
+      }
       //    console.log($stateParams)
       else {
-        $scope.alert = "*Please add epochs";
+        $scope.alert = '*Please add epochs';
       }
     }
+
 
     function previous() {
       $state.go('intermediate-arm', $stateParams);
     }
+
 
     function addEpoch(epoch) {
       $modal.open({
@@ -101,30 +105,26 @@ define(['jquery'], function($) {
       return EpochService.deleteItem(epoch).then(function() {
         reloadStudyModel();
       });
-      console.log(epoch)
     }
 
     function reloadStudyModel() {
-      StudyService.getStudy().then(function(study) {
-        fillView(study);
-      });
       EpochService.queryItems().then(function(epochs) {
         $scope.epochs = epochs;
-        console.log('epochs: ' + epochs)
+        console.log('epochs: ' + epochs);
       });
     }
 
-    function fillView(study) {
-      $scope.studyUuid = $filter('stripFrontFilter')(study['@id'], 'http://trials.drugis.org/studies/');
-      $scope.study = {
-        id: $scope.studyUuid,
-        label: study.label,
-        comment: study.comment,
-      };
-      if (study.has_publication && study.has_publication.length === 1) {
-        $scope.study.nctId = study.has_publication[0].registration_id;
-        $scope.study.nctUri = study.has_publication[0].uri;
+
+    function accept(suggestion) {
+      addEpoch(suggestion);
+      if (suggestion && suggestion.length > 0) {
+        reject(suggestion);
       }
+    }
+
+    function reject(suggestion) {
+      $scope.suggestedEpochs = _.reject($scope.suggestedEpochs,
+        ['label', suggestion.label]);
     }
 
   };

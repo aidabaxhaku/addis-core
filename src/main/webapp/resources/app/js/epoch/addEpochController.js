@@ -2,25 +2,25 @@
 define([],
   function() {
     var dependencies = [
-    '$scope', 
-    '$modalInstance', 
-    'EpochService', 
-    'callback', 
-    'DurationService',
-    'item'
+      '$scope',
+      '$modalInstance',
+      'EpochService',
+      'callback',
+      'DurationService',
+      'item'
     ];
     var addEpochController = function(
-      $scope, 
-      $modalInstance, 
-      EpochService, 
-      callback, 
+      $scope,
+      $modalInstance,
+      EpochService,
+      callback,
       DurationService,
-      item ) {
+      item) {
       // functions
       $scope.addItem = addItem;
       $scope.cancel = cancel;
       $scope.changeToInstantaneous = changeToInstantaneous;
-      $scope.item = item;
+
 
       // init
       $scope.periodTypeOptions = [{
@@ -37,12 +37,13 @@ define([],
         label: 'week(s)'
       }];
 
-      $scope.item = {
-        duration: {
-          numberOfPeriods: 1,
-          periodType: $scope.periodTypeOptions[0]
-        }
-      };
+      if (item) {
+        $scope.item = item;
+      } else {
+        $scope.item = {
+          duration: 'PT0S'
+        };
+      }
 
       $scope.isValidDuration = DurationService.isValidDuration;
 

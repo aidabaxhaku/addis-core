@@ -18,7 +18,7 @@ define(['./intermediateImportArmsController',
         DeleteCategoryController,
         angular,
         IntermediateImportResource,
-        IntermediateImportController,
+        IntermediateImportController
     ) {
         var dependencies = [];
         return angular.module('addis.intermediateImport', dependencies)

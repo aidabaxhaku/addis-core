@@ -3,21 +3,18 @@ define([], function() {
   var dependencies = [
     '$scope',
     '$modalInstance',
-    'callback',
-    'ArmService'
+    'callback'
   ];
   var DeleteCategoryController = function(
     $scope,
     $modalInstance,
-    callback,
-    ArmService) {
+    callback) {
 
     // functions 
     $scope.deleteCategory = deleteCategory;
     $scope.cancel = cancel;
-    $scope.category = {};
 
-    function deleteCategory() {
+    function deleteCategory(category) {
       // return ArmService.deleteItem(group).then(function() {
       delete(category).$promise.then(function() {
         callback();

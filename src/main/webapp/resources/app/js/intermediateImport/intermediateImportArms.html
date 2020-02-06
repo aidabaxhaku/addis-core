@@ -40,8 +40,7 @@
         <div ng-if="arms.length === 0"
           class="callout secondary">
           <h5>**The study currently contains no arms. Please reclassify the
-            other
-            groups as arms.</h5>
+            other groups as arms.</h5>
         </div>
         <button ng-click="addArm()"
           type="button"
@@ -49,8 +48,8 @@
         </button>
         <div class="panel callout primary clearfix"
           ng-repeat="arm in arms">{{arm.label}}
-          <span ng-if="arm.results.length === 0">
-            <font color="red">No data!</font>
+          <span class="alert" ng-if="arm.results.length === 0">
+            No data
           </span>
           <a ng-click="editArm(arm)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
           <a ng-click="mergeArm(arm)" title="merge"><i class="fa fa-code-fork  fa-rotate-180 fa-2x fa-fw"></i> </a>
@@ -102,8 +101,8 @@
           type="button"
           class="button">Next <i class="fa fa-forward"></i>
         </button>
-        <div ng-if='alert !== ""'
-          data-alertclass="alert-box alert"> {{ alert }}
+        <div ng-if='alert'
+          data-alert class="alert-box alert"> {{ alert }}
         </div>
       </div>
     </div>

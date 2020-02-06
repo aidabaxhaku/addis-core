@@ -1,5 +1,5 @@
 'use strict';
-define(['jquery'], function($) {
+define(['jquery', 'lodash'], function($, _) {
   var dependencies = [
     '$scope',
     '$stateParams',
@@ -28,13 +28,17 @@ define(['jquery'], function($) {
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
     $scope.item = {};
-    $scope.alert = "";
+    $scope.alert = '';
+    $scope.suggestedActivities = _.values(ActivityService.ACTIVITY_TYPE_OPTIONS);
+
     //functions
     $scope.next = next;
     $scope.previous = previous;
     $scope.editActivity = editActivity;
     $scope.addActivity = addActivity;
     $scope.deleteActivity = deleteActivity;
+    $scope.reject = reject;
+    $scope.accept = accept;
 
     $scope.selectTab = selectTab;
 
@@ -65,11 +69,13 @@ define(['jquery'], function($) {
     }
 
     function next() {
-      if ($scope.activities.length > 0)
+      if ($scope.activities.length > 0) {
         $state.go('intermediate-designTable', $stateParams);
+      }
       // console.log($stateParams)
-      else
-        $scope.alert = "*Please add activities.";
+      else {
+        $scope.alert = '*Please add activities.';
+      }
     }
 
     function previous() {
@@ -124,7 +130,6 @@ define(['jquery'], function($) {
       return ActivityService.deleteItem(activity).then(function() {
         reloadStudyModel();
       });
-      console.log(activity)
     }
 
     reloadStudyModel();
@@ -136,10 +141,22 @@ define(['jquery'], function($) {
       ActivityService.queryItems().then(function(activities) {
         $scope.activities = activities;
 
-        console.log('activities' + activities)
+        //console.log('activities' + activities)
       });
     }
-    
+
+    function accept(suggestion) {
+      addActivity(suggestion);
+      if (suggestion && suggestion.length > 0) {
+        reject(suggestion);
+      }
+    }
+
+    function reject(suggestion) {
+      $scope.suggestedActivities = _.reject($scope.suggestedActivities,
+        ['label', suggestion.label]);
+    }
+
   };
   return dependencies.concat(IntermediateImportActivitiesController);
 });

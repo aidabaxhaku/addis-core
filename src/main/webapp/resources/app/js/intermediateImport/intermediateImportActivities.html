@@ -46,6 +46,11 @@
           <a ng-click="deleteActivity(activity)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
         </div>
 
+        <div class="panel callout" ng-repeat="suggestedActivity in suggestedActivities">
+          {{suggestedActivity.label}}
+          <a ng-click="accept(suggestedActivity)" title="accept"> <i class="fa fa-check fa-2x fa-fw"></i> </a>
+          <a ng-click="reject(suggestedActivity)" title="don't accept"> <i class="fa fa-times fa-2x fa-fw"></i> </a>
+        </div>
         <button ng-click="addActivity()"
           type="button"
           class="button">Add <i class="fa fa-plus"></i>

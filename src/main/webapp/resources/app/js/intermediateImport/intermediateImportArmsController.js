@@ -41,14 +41,12 @@ define([], function() {
     $scope.arms = [];
     $scope.groups = [];
     $scope.measurementMoments = [];
-    $scope.study = {};
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
     $scope.categorySettings = STUDY_CATEGORY_SETTINGS;
     $scope.isEditingAllowed = true;
-    $scope.alert = "";
-    $scope.results = [];
-    $scope.noData = "";
+    $scope.alert = '';
+    $scope.noData = '';
 
     //functions   
     $scope.next = next;
@@ -67,9 +65,6 @@ define([], function() {
     reloadStudyModel();
 
     function reloadStudyModel() {
-      StudyService.getStudy().then(function(study) {
-        fillView(study);
-      });
       ArmService.queryItems().then(function(arms) {
         $scope.arms = arms;
        return arms.map(function(arm) {
@@ -84,20 +79,6 @@ define([], function() {
       });
     }
 
-    //To get the NCTID of the current study
-    function fillView(study) {
-      $scope.studyUuid = $filter('stripFrontFilter')(study['@id'], 'http://trials.drugis.org/studies/');
-      $scope.study = {
-        id: $scope.studyUuid,
-        label: study.label,
-        comment: study.comment,
-      };
-      if (study.has_publication && study.has_publication.length === 1) {
-        $scope.study.nctId = study.has_publication[0].registration_id;
-        $scope.study.nctUri = study.has_publication[0].uri;
-      }
-    }
-
     function addResultsToGroup(group) {
       return ResultsService.queryResultsByGroup(group.groupUri).then(function(results) {
         group.results = results; 
@@ -108,7 +89,7 @@ define([], function() {
     function addResultsToArm(arm) {
       return ResultsService.queryResultsByGroup(arm.armUri).then(function(results) {
         arm.results = results;
-      })
+      });
     }
 
     function previous() {
@@ -116,11 +97,12 @@ define([], function() {
     }
 
     function next() {
-      if ($scope.arms.length > 0)
+      if ($scope.arms.length > 0){
         $state.go('intermediate-epoch', $stateParams);
+      }
       //console.log($stateParams)
       else {
-        $scope.alert = "*Please add arms";
+        $scope.alert = '*Please add arms';
       }
     }
 
@@ -176,12 +158,6 @@ define([], function() {
     }
 
     function editArm(arm) {
-      return ArmService.editItem(arm).then(function() {
-        reloadStudyModel();
-      });
-    }
-
-    function editArm(arm) {
       $modal.open({
         scope: $scope,
         templateUrl: '../arm/editArm.html',
@@ -204,7 +180,6 @@ define([], function() {
       return GroupService.deleteItem(group).then(function() {
         reloadStudyModel();
       });
-      console.log(group)
     }
 
     function deleteArm(arm) {

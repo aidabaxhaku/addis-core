@@ -84,7 +84,7 @@ define(['lodash', '../util/context'], function(_, externalContext) {
     }
 
     function loadJson(jsonPromise) {
-      studyJsonPromise = jsonPromise;
+      return studyJsonPromise = jsonPromise;
     }
 
     function getGraphAndContext() {

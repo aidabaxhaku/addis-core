@@ -46,10 +46,10 @@
           <a ng-click="deleteEpoch(epoch)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
         </div>
         <!-- Suggestion divs -->
-        <div class="panel callout">
-          {{screening.label}}
-          <a ng-click="editEpoch(screening)" title="accept"> <i class="fa fa-check fa-2x fa-fw"></i> </a>
-          <a ng-click="isShowHide('hide')" title="don't accept"> <i class="fa fa-times fa-2x fa-fw"></i> </a>
+        <div class="panel callout" ng-repeat="suggestedEpoch in suggestedEpochs">
+          {{suggestedEpoch.label}}
+          <a ng-click="accept(suggestedEpoch)" title="accept"> <i class="fa fa-check fa-2x fa-fw"></i> </a>
+          <a ng-click="reject(suggestedEpoch)" title="don't accept"> <i class="fa fa-times fa-2x fa-fw"></i> </a>
         </div>
         <button ng-click="addEpoch(epoch)"
           type="button"

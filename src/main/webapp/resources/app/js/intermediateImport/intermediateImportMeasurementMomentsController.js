@@ -9,9 +9,7 @@ define(['jquery'], function($) {
     'MeasurementMomentService',
     'GraphResource',
     'StudyService',
-    'UserResource',
-    'DurationService',
-    'EpochService'
+    'UserResource'
   ];
   var IntermediateImportMeasurementMomentsController = function(
     $scope,
@@ -22,16 +20,14 @@ define(['jquery'], function($) {
     MeasurementMomentService,
     GraphResource,
     StudyService,
-    UserResource,
-    DurationService,
-    EpochService
+    UserResource
   ) {
     //init
     $scope.measurementMoments = [];
     $scope.study = {};
     $scope.user = UserResource.get($stateParams);
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
-    $scope.alert = "";
+    $scope.alert = '';
 
     //functions
     $scope.next = next;
@@ -42,11 +38,7 @@ define(['jquery'], function($) {
     $scope.editMeasurementMoment = editMeasurementMoment;
 
     function next() {
-      $state.go('dataset.study', {
-        userUid: $stateParams.userUid,
-        datasetUuid: $stateParams.datasetUuid,
-        studyGraphUuid: $stateParams.studyGraphUuid
-      });
+      $state.go('dataset.study', $stateParams);
     }
 
     function previous() {
@@ -119,26 +111,10 @@ define(['jquery'], function($) {
     reloadStudyModel();
 
     function reloadStudyModel() {
-      StudyService.getStudy().then(function(study) {
-        fillView(study);
-      });
       MeasurementMomentService.queryItems().then(function(measurementMoments) {
         $scope.measurementMoments = measurementMoments;
-        console.log('measurementMoments ' + measurementMoments)
+        //     console.log('measurementMoments ' + measurementMoments)
       });
-    }
-
-    function fillView(study) {
-      $scope.studyUuid = $filter('stripFrontFilter')(study['@id'], 'http://trials.drugis.org/studies/');
-      $scope.study = {
-        id: $scope.studyUuid,
-        label: study.label,
-        comment: study.comment,
-      };
-      if (study.has_publication && study.has_publication.length === 1) {
-        $scope.study.nctId = study.has_publication[0].registration_id;
-        $scope.study.nctUri = study.has_publication[0].uri;
-      }
     }
   };
   return dependencies.concat(IntermediateImportMeasurementMomentsController);
