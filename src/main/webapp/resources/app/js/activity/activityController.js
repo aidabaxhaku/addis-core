@@ -34,18 +34,40 @@ define(['lodash', 'angular'],
         isVisible: false
       };
 
+      if ($scope.actionType === 'Add') {
+        $scope.itemScratch = {};
+        $scope.itemScratch.treatment = {};
+        $scope.itemScratch.doseType = 'FixedDoseDrugTreatment';
+        $scope.commit = $scope.addItem; // set the function to be called when the form is submitted
+      } else if ($scope.actionType === 'AddWithSuggestion') {
+        $scope.itemScratch = angular.copy($scope.item);
+        $scope.itemScratch.activityType = ActivityService.ACTIVITY_TYPE_OPTIONS[$scope.itemScratch.activityType.uri];
+        $scope.commit = $scope.addItem;
+      } else {
+        $scope.itemScratch = angular.copy($scope.item);
+        // select from the options map as ng-select works by reference
+        $scope.itemScratch.activityType = ActivityService.ACTIVITY_TYPE_OPTIONS[$scope.itemScratch.activityType.uri];
+        $scope.commit = $scope.editItem;
+      }
+
       $scope.$watch(scrollableWrapperHeight, showScrollbarIfNecessary);
 
       function scrollableWrapperHeight() {
         var scrollableWrappers = document.getElementsByClassName('scrollable-wrapper');
-        if (!scrollableWrappers.length) { return; }
+        if (!scrollableWrappers.length) {
+          return;
+        }
         return angular.element(scrollableWrappers[0]).parent().parent()[0].clientHeight;
       }
 
       function showScrollbarIfNecessary(oldValue, newValue) {
-        if (oldValue === newValue) { return; }
+        if (oldValue === newValue) {
+          return;
+        }
         var revealModal = document.getElementsByClassName('reveal-modal');
-        if (!revealModal.length) { return; }
+        if (!revealModal.length) {
+          return;
+        }
         var offsetString = angular.element(revealModal).css('top');
         var offset = parseInt(offsetString, 10); // remove px part
         var viewPortHeight = angular.element('html')[0].clientHeight;
@@ -57,18 +79,6 @@ define(['lodash', 'angular'],
         } else {
           scrollableWrapperElement.css('max-height', viewPortHeight + offset);
         }
-      }
-
-      if ($scope.actionType === 'Add') {
-        $scope.itemScratch = {};
-        $scope.itemScratch.treatment = {};
-        $scope.itemScratch.doseType = 'FixedDoseDrugTreatment';
-        $scope.commit = $scope.addItem; // set the function to be called when the form is submitted
-      } else {
-        $scope.itemScratch = angular.copy($scope.item);
-        // select from the options map as ng-select works by reference
-        $scope.itemScratch.activityType = ActivityService.ACTIVITY_TYPE_OPTIONS[$scope.itemScratch.activityType.uri];
-        $scope.commit = $scope.editItem;
       }
 
       function addDrugClicked() {
@@ -85,9 +95,9 @@ define(['lodash', 'angular'],
         $scope.isEditing = true;
         ActivityService.addItem($scope.itemScratch)
           .then(function() {
-            callback();
-            $modalInstance.close();
-          },
+              callback();
+              $modalInstance.close();
+            },
             function() {
               console.error('failed to create activity');
               cancel();
@@ -98,9 +108,9 @@ define(['lodash', 'angular'],
         $scope.isEditing = true;
         ActivityService.editItem($scope.itemScratch)
           .then(function() {
-            callback();
-            $modalInstance.close();
-          },
+              callback();
+              $modalInstance.close();
+            },
             function() {
               console.error('failed to edit activity');
               cancel();

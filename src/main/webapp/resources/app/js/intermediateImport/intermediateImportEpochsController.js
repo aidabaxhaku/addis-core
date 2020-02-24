@@ -45,23 +45,19 @@ define(['lodash'], function(_) {
     $scope.accept = accept;
     $scope.reject = reject;
 
-    reloadStudyModel();
+    reloadEpochs();
 
     function nextActivity() {
       if ($scope.epochs.length > 0) {
         $state.go('intermediate-activity', $stateParams);
-      }
-      //    console.log($stateParams)
-      else {
+      } else {
         $scope.alert = '*Please add epochs';
       }
     }
 
-
     function previous() {
       $state.go('intermediate-arm', $stateParams);
     }
-
 
     function addEpoch(epoch) {
       $modal.open({
@@ -70,7 +66,7 @@ define(['lodash'], function(_) {
         controller: 'AddEpochController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadEpochs;
           },
           itemService: function() {
             return EpochService;
@@ -89,7 +85,7 @@ define(['lodash'], function(_) {
         controller: 'EditEpochController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadEpochs;
           },
           itemService: function() {
             return EpochService;
@@ -103,23 +99,37 @@ define(['lodash'], function(_) {
 
     function deleteEpoch(epoch) {
       return EpochService.deleteItem(epoch).then(function() {
-        reloadStudyModel();
+        reloadEpochs();
       });
     }
 
-    function reloadStudyModel() {
+    function reloadEpochs() {
       EpochService.queryItems().then(function(epochs) {
         $scope.epochs = epochs;
         console.log('epochs: ' + epochs);
       });
     }
 
-
     function accept(suggestion) {
-      addEpoch(suggestion);
-      if (suggestion && suggestion.length > 0) {
-        reject(suggestion);
-      }
+      $modal.open({
+        scope: $scope,
+        templateUrl: '../epoch/addEpoch.html',
+        controller: 'AddEpochController',
+        resolve: {
+          callback: function() {
+            return function() {
+              reject(suggestion);
+              reloadEpochs();
+            }
+          },
+          itemService: function() {
+            return EpochService;
+          },
+          item: function() {
+            return suggestion;
+          }
+        },
+      });
     }
 
     function reject(suggestion) {

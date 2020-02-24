@@ -50,6 +50,7 @@ define([],
       function addItem() {
         EpochService.addItem($scope.item)
           .then(function() {
+              
               callback();
               $modalInstance.close();
             },

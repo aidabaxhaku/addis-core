@@ -7,45 +7,61 @@
     <li class="current active">Intermediate Import </li>
   </ul>
   <div class="grid-container">
-    <div class="grid-x">
-      <div class="cell large-2 medium-3 show-for-medium-up"
+    <div class="grid-x nav-bar-spacer">
+      <div ng-hide="navSettings.isHidden"
+        class="cell large-2 medium-3 show-for-medium-up"
         role="navigation"
         title="Categories">
-        <div class="align-left">
-          <ul class="side-nav">
-            <li> <a ng-click="sideNavClick('intermediate-arm')" ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms</a></li>
-            <li class="divider"></li>
+        <div class="columns small-6 right"
+          data-sticky-container>
+          <div class="sticky"
+            data-sticky
+            data-margin-top="0">
+            <ul class="side-nav">
+              <li> <a ng-click="sideNavClick('intermediate-arm')" ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms</a></li>
+              <li class="divider"></li>
 
-            <li><a ng-click="sideNavClick('intermediate-epoch')" ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
-            <li class="divider"></li>
+              <li><a ng-click="sideNavClick('intermediate-epoch')" ui-sref="intermediate-epoch({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Epochs</a></li>
+              <li class="divider"></li>
 
-            <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
-            <li class="divider"></li>
+              <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
+              <li class="divider"></li>
 
-            <li class="current active">Study design</li>
-            <li class="divider"></li>
+              <li class="current active">Study design</li>
+              <li class="divider"></li>
 
-            <li><a ng-click="sideNavClick('intermediate-intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
-          </ul>
+              <li><a ng-click="sideNavClick('intermediate-intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="cell large-8 medium-3 show-for-medium-up">
-        <h1>Repair Study Design</h1>
-        <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank">This is {{::study.nctId}}</a></div>
 
-        <h5>Please fill in the study design table. <h5>
-            <study-design is-editing-allowed="isEditingAllowed"></study-design>
+      <div class="cell large-10 medium-9 small-12 nav-bar-spacer"
+        ng-class="{'large-12 medium-12': navSettings.isHidden}">
+        <div class="grid-container">
+          <div class="grid-x"
+            style="margin-bottom: 1rem;">
+            <div class="cell large-10">
+              <h1>Repair Study Design</h1>
+              <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank">This is {{::study.nctId}}</a></div>
 
-            <button ng-click="previous()"
-              type="button"
-              class="button"> <i class="fa fa-backward"></i> Previous
-            </button>
+              <h5>Please fill in the study design table. </h5>
+              <study-design is-editing-allowed="true"></study-design>
 
-            <button ng-click="next()"
-              type="button"
-              class="button">Next <i class="fa fa-forward"></i>
-            </button>
+              <button ng-click="previous()"
+                type="button"
+                class="button"> <i class="fa fa-backward"></i> Previous
+              </button>
 
+              <button ng-click="next()"
+                type="button"
+                class="button">Next <i class="fa fa-forward"></i>
+              </button>
+
+
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

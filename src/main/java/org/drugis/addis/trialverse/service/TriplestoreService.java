@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -64,4 +65,6 @@ public interface TriplestoreService {
   List<TrialDataStudy> addMatchingInformation(Set<AbstractIntervention> includedInterventions, List<TrialDataStudy> trialData);
 
   List<URI> getUnitUris(String trialverseDatasetUuid, URI headVersion) throws IOException;
+
+  Map<URI, String> getStudyTitlesByUri(String namespaceUid, URI versionUri);
 }

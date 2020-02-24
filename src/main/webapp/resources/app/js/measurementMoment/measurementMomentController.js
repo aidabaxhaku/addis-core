@@ -26,9 +26,9 @@ define(['lodash', 'angular'], function(_, angular) {
     $scope.updateMergeWarning = updateMergeWarning;
     $scope.isValidDuration = isValidDuration;
     $scope.cancel = cancel;
-    $scope.item = item;
 
     // init
+    $scope.item = item;
     $scope.isEditing = false;
     $scope.actionType = actionType;
     $scope.generateLabel = MeasurementMomentService.generateLabel;

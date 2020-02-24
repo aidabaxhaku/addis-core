@@ -8,7 +8,6 @@ define(['jquery', 'lodash'], function($, _) {
     '$filter',
     'ActivityService',
     'GraphResource',
-    'StudyService',
     'UserResource'
   ];
   var IntermediateImportActivitiesController = function(
@@ -19,7 +18,6 @@ define(['jquery', 'lodash'], function($, _) {
     $filter,
     ActivityService,
     GraphResource,
-    StudyService,
     UserResource
   ) {
     //init
@@ -29,7 +27,12 @@ define(['jquery', 'lodash'], function($, _) {
     $scope.studyGraphUuid = $stateParams.studyGraphUuid;
     $scope.item = {};
     $scope.alert = '';
-    $scope.suggestedActivities = _.values(ActivityService.ACTIVITY_TYPE_OPTIONS);
+    $scope.suggestedActivities = _.map(ActivityService.ACTIVITY_TYPE_OPTIONS, function(activityType) {
+      return {
+        label: activityType.label,
+        activityType: activityType
+      }
+    });
 
     //functions
     $scope.next = next;
@@ -55,19 +58,6 @@ define(['jquery', 'lodash'], function($, _) {
       }
     }
 
-    function fillView(study) {
-      $scope.studyUuid = $filter('stripFrontFilter')(study['@id'], 'http://trials.drugis.org/studies/');
-      $scope.study = {
-        id: $scope.studyUuid,
-        label: study.label,
-        comment: study.comment,
-      };
-      if (study.has_publication && study.has_publication.length === 1) {
-        $scope.study.nctId = study.has_publication[0].registration_id;
-        $scope.study.nctUri = study.has_publication[0].uri;
-      }
-    }
-
     function next() {
       if ($scope.activities.length > 0) {
         $state.go('intermediate-designTable', $stateParams);
@@ -89,7 +79,7 @@ define(['jquery', 'lodash'], function($, _) {
         controller: 'ActivityController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadActivities;
           },
           itemService: function() {
             return ActivityService;
@@ -111,7 +101,7 @@ define(['jquery', 'lodash'], function($, _) {
         controller: 'ActivityController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadActivities;
           },
           itemService: function() {
             return ActivityService;
@@ -128,28 +118,42 @@ define(['jquery', 'lodash'], function($, _) {
 
     function deleteActivity(activity) {
       return ActivityService.deleteItem(activity).then(function() {
-        reloadStudyModel();
+        reloadActivities();
       });
     }
 
-    reloadStudyModel();
+    reloadActivities();
 
-    function reloadStudyModel() {
-      StudyService.getStudy().then(function(study) {
-        fillView(study);
-      });
+    function reloadActivities() {
       ActivityService.queryItems().then(function(activities) {
         $scope.activities = activities;
-
         //console.log('activities' + activities)
       });
     }
 
     function accept(suggestion) {
-      addActivity(suggestion);
-      if (suggestion && suggestion.length > 0) {
-        reject(suggestion);
-      }
+      $modal.open({
+        scope: $scope,
+        templateUrl: '../activity/editActivity.html',
+        controller: 'ActivityController',
+        resolve: {
+          callback: function() {
+            return function() {
+              reject(suggestion);
+              reloadActivities();
+            }
+          },
+          itemService: function() {
+            return ActivityService;
+          },
+          item: function() {
+            return suggestion;
+          },
+          actionType: function() {
+            return 'AddWithSuggestion';
+          }
+        },
+      });
     }
 
     function reject(suggestion) {

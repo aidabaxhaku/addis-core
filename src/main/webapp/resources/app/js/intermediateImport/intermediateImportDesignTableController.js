@@ -4,26 +4,33 @@ define([],
     var dependencies = [
       '$stateParams',
       '$scope',
-      '$state'
+      '$state',
+      'ResultsService',
+      'StudyDesignService'
     ];
     var IntermediateImportDesignTableController = function(
       $stateParams,
       $scope,
-      $state
+      $state,
+      ResultsService,
+      StudyDesignService
     ) {
 
       //functions
       $scope.previous = previous;
       $scope.next = next;
 
+      $scope.$on('updateStudyDesign', function() {
+        ResultsService.cleanupMeasurements().then(function() {
+          $scope.$broadcast('refreshResults');
+        });
+        StudyDesignService.cleanupCoordinates($stateParams.studyUUID).then(function() {
+          $scope.$broadcast('refreshStudyDesign');
+        });
+      });
+
       function next() {
-       // if ($scope.activities.length > 0) {
-          $state.go('intermediate-measurementMoment', $stateParams);
-     //   }
-        // console.log($stateParams)
-       // else {
-          $scope.alert = '*Please add activities.';
-       // }
+        $state.go('intermediate-measurementMoment', $stateParams);
       }
 
       function previous() {
@@ -31,9 +38,9 @@ define([],
       }
 
 
-      reloadStudyModel();
+      reloadDesignTable();
 
-      function reloadStudyModel() {
+      function reloadDesignTable() {
 
       }
     };

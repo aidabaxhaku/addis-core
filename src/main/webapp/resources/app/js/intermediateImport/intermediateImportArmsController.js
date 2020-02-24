@@ -62,33 +62,26 @@ define([], function() {
     $scope.mergeArm = mergeArm;
     $scope.previous = previous;
 
-    reloadStudyModel();
+    reloadArmsAndGroups();
 
-    function reloadStudyModel() {
+    function reloadArmsAndGroups() {
       ArmService.queryItems().then(function(arms) {
         $scope.arms = arms;
-       return arms.map(function(arm) {
-         addResultsToArm(arm);
-       });
+        // return arms.map(function(arm) {
+        //   addResultsToArm(arm);
+        // });
       });
       GroupService.queryItems().then(function(groups) {
         $scope.groups = groups;
         return groups.map(function(group) {
-          addResultsToGroup(group);
+          addResultsToArm(group);
         });
       });
     }
 
-    function addResultsToGroup(group) {
+    function addResultsToArm(group) {
       return ResultsService.queryResultsByGroup(group.groupUri).then(function(results) {
-        group.results = results; 
-        console.log('Results:' + results);
-      });
-    }
-
-    function addResultsToArm(arm) {
-      return ResultsService.queryResultsByGroup(arm.armUri).then(function(results) {
-        arm.results = results;
+        group.results = results;
       });
     }
 
@@ -97,11 +90,9 @@ define([], function() {
     }
 
     function next() {
-      if ($scope.arms.length > 0){
+      if ($scope.arms && $scope.arms.length > 0) {
         $state.go('intermediate-epoch', $stateParams);
-      }
-      //console.log($stateParams)
-      else {
+      } else {
         $scope.alert = '*Please add arms';
       }
     }
@@ -113,7 +104,7 @@ define([], function() {
         controller: 'CreateGroupController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadArmsAndGroups;
           },
           itemService: function() {
             return GroupService;
@@ -129,7 +120,7 @@ define([], function() {
         controller: 'CreateArmController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadArmsAndGroups;
           },
           itemService: function() {
             return ArmService;
@@ -145,7 +136,7 @@ define([], function() {
         controller: 'EditGroupController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadArmsAndGroups;
           },
           itemService: function() {
             return GroupService;
@@ -164,7 +155,7 @@ define([], function() {
         controller: 'EditArmController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadArmsAndGroups;
           },
           itemService: function() {
             return ArmService;
@@ -178,25 +169,25 @@ define([], function() {
 
     function deleteGroup(group) {
       return GroupService.deleteItem(group).then(function() {
-        reloadStudyModel();
+        reloadArmsAndGroups();
       });
     }
 
     function deleteArm(arm) {
       return ArmService.deleteItem(arm).then(function() {
-        reloadStudyModel();
+        reloadArmsAndGroups();
       });
     }
 
     function reclassifyGroup(group) {
       return GroupService.reclassifyAsArm(group).then(function() {
-        reloadStudyModel();
+        reloadArmsAndGroups();
       });
     }
 
     function reclassifyArm(arm) {
       return ArmService.reclassifyAsGroup(arm).then(function() {
-        reloadStudyModel();
+        reloadArmsAndGroups();
       });
     }
 
@@ -207,7 +198,7 @@ define([], function() {
         controller: 'EditGroupController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadArmsAndGroups;
           },
           itemService: function() {
             return GroupService;
@@ -226,7 +217,7 @@ define([], function() {
         controller: 'EditArmController',
         resolve: {
           callback: function() {
-            return reloadStudyModel;
+            return reloadArmsAndGroups;
           },
           itemService: function() {
             return ArmService;

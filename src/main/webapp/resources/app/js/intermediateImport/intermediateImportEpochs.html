@@ -9,72 +9,90 @@
   </ul>
 
   <div class="grid-container">
-    <div class="grid-x">
-      <div class="cell large-2 medium-3 show-for-medium-up"
-        role="navigation"
-        title="Categories">
-        <div class="align-left">
-          <ul class="side-nav">
-            <li> <a ng-click="sideNavClick('intermediate-arm')" ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms </a></li>
-            <li class="divider"></li>
-            
-            <li class="current active">Epochs</li>
-            <li class="divider"></li>
-            
-            <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
-            <li class="divider"></li>
-            
-            <li><a ng-click="sideNavClick('intermediate-designTable')" ui-sref="intermediate-designTable({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Study Design</a></li>
-            <li class="divider"></li>          
+    <div class="grid-x nav-bar-spacer">
+      <div ng-hide="navSettings.isHidden"
+        class="cell large-2 medium-3 show-for-medium-up">
+        <div class="columns small-6 right"
+          data-sticky-container>
+          <div class="sticky"
+            data-sticky
+            data-margin-top="0">
+            <ul class="side-nav">
+              <li> <a ng-click="sideNavClick('intermediate-arm')" ui-sref="intermediate-arm({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Arms </a></li>
+              <li class="divider"></li>
 
-            <li> <a ng-click="sideNavClick('intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
-            <li class="divider"></li>
-          </ul>
+              <li class="current active">Epochs</li>
+              <li class="divider"></li>
+
+              <li><a ng-click="sideNavClick('intermediate-activity')" ui-sref="intermediate-activity({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Activities</a></li>
+              <li class="divider"></li>
+
+              <li><a ng-click="sideNavClick('intermediate-designTable')" ui-sref="intermediate-designTable({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Study Design</a></li>
+              <li class="divider"></li>
+
+              <li> <a ng-click="sideNavClick('intermediate-measurementMoment')" ui-sref="intermediate-measurementMoment({userUid: userUid, datasetUuid: datasetUuid, studyGraphUuid: studyGraphUuid})">Measurement moments</a></li>
+              <li class="divider"></li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <div class="grid-container">
-        <h1>Repair epochs</h1>
-        <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank"> {{::study.nctId}}</a></div>
-        <div ng-if="epochs.length === 0">
-          <h5>No epochs are defined. Please add epochs in your study.</h5>
-        </div>
-        <div ng-repeat="epoch in epochs"
-          class="panel callout primary clearfix">
-          {{epoch.label}}
-          <a ng-click="editEpoch(epoch)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
-          <a ng-click="deleteEpoch(epoch)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
-        </div>
-        <!-- Suggestion divs -->
-        <div class="panel callout" ng-repeat="suggestedEpoch in suggestedEpochs">
-          {{suggestedEpoch.label}}
-          <a ng-click="accept(suggestedEpoch)" title="accept"> <i class="fa fa-check fa-2x fa-fw"></i> </a>
-          <a ng-click="reject(suggestedEpoch)" title="don't accept"> <i class="fa fa-times fa-2x fa-fw"></i> </a>
-        </div>
-        <button ng-click="addEpoch(epoch)"
-          type="button"
-          class="button">Add <i class="fa fa-plus"></i>
-        </button>
-        <results-table variable="arms"
-          arms="arms"
-          groups="groups"
-          measurement-moments="measurementMoments"
-          is-editing-allowed="isEditingAllowed">
-        </results-table>
-
+      <div class="cell large-10 medium-9 small-12 nav-bar-spacer"
+        ng-class="{'large-12 medium-12': navSettings.isHidden}">
         <div class="grid-container">
-          <button ng-click="previous()"
-            type="button"
-            class="button"><i class="fa fa-backward"></i> Previous
-          </button>
-          <button ng-click="nextActivity()"
-            type="button"
-            class="button">Next <i class="fa fa-forward"></i>
-          </button>
-          <div ng-if='alert !== ""'
-            data-alert
-            class="alert-box alert"> {{ alert }}
+          <div class="grid-x"
+            style="margin-bottom: 1rem;">
+
+            <div class="cell large-10">
+              <h1>Repair epochs</h1>
+              <div ng-if="study.nctId"><a ng-href="{{study.nctUri}}" target="_blank"> {{::study.nctId}}</a></div>
+              <div ng-if="epochs.length === 0">
+                <h5>No epochs are defined. Please add epochs in your study.</h5>
+              </div>
+              <div ng-repeat="epoch in epochs"
+                class="panel callout primary clearfix">
+                {{epoch.label}}
+                <a ng-click="editEpoch(epoch)" title="edit"> <i class="fa fa-edit fa-2x fa-fw"></i> </a>
+                <a ng-click="deleteEpoch(epoch)" title="delete" ng-show="!isSingleItem"><i class="fa fa-trash-o fa-2x fa-fw"></i></a>
+              </div>
+            </div>
+            <!-- Suggestion divs -->
+            <div class="cell large-10">
+              <div class="panel callout"
+                ng-repeat="suggestedEpoch in suggestedEpochs">
+                {{suggestedEpoch.label}}
+                <a ng-click="accept(suggestedEpoch)" title="accept"> <i class="fa fa-check fa-2x fa-fw"></i> </a>
+                <a ng-click="reject(suggestedEpoch)" title="don't accept"> <i class="fa fa-times fa-2x fa-fw"></i> </a>
+              </div>
+              <!-- Buttons -->
+              <button ng-click="addEpoch(epoch)"
+                type="button"
+                class="button">Add <i class="fa fa-plus"></i>
+              </button>
+              <results-table variable="arms"
+                arms="arms"
+                groups="groups"
+                measurement-moments="measurementMoments"
+                is-editing-allowed="isEditingAllowed">
+              </results-table>
+
+                <button ng-click="previous()"
+                  type="button"
+                  class="button"><i class="fa fa-backward"></i> Previous
+                </button>
+                <button ng-click="nextActivity()"
+                  type="button"
+                  class="button">Next <i class="fa fa-forward"></i>
+                </button>
+                <div ng-if='alert !== ""'
+                  data-alert
+                  class="alert-box alert"> {{ alert }}
+                </div>
+            </div>
+
           </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
